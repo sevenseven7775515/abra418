@@ -14,6 +14,7 @@ import { Route as PersonalIndexRouteImport } from './routes/personal.index'
 import { Route as PersonalAppRouteImport } from './routes/personal._app'
 import { Route as PersonalLoginRouteImport } from './routes/personal.login'
 import { Route as PersonalAppModuleRouteImport } from './routes/personal._app.$module'
+import { Route as PersonalAppAgendaRouteImport } from './routes/personal._app.agenda'
 import { Route as PersonalAppAiRouteImport } from './routes/personal._app.ai'
 import { Route as PersonalAppCyclesRouteImport } from './routes/personal._app.cycles'
 import { Route as PersonalAppDashboardRouteImport } from './routes/personal._app.dashboard'
@@ -48,6 +49,11 @@ const PersonalLoginRoute = PersonalLoginRouteImport.update({
 const PersonalAppModuleRoute = PersonalAppModuleRouteImport.update({
   id: '/$module',
   path: '/$module',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
+const PersonalAppAgendaRoute = PersonalAppAgendaRouteImport.update({
+  id: '/agenda',
+  path: '/agenda',
   getParentRoute: () => PersonalAppRoute,
 } as any)
 const PersonalAppAiRoute = PersonalAppAiRouteImport.update({
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/personal/login': typeof PersonalLoginRoute
   '/personal/': typeof PersonalIndexRoute
   '/personal/$module': typeof PersonalAppModuleRoute
+  '/personal/agenda': typeof PersonalAppAgendaRoute
   '/personal/ai': typeof PersonalAppAiRoute
   '/personal/cycles': typeof PersonalAppCyclesRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
@@ -124,6 +131,7 @@ export interface FileRoutesByTo {
   '/personal': typeof PersonalIndexRoute
   '/personal/login': typeof PersonalLoginRoute
   '/personal/$module': typeof PersonalAppModuleRoute
+  '/personal/agenda': typeof PersonalAppAgendaRoute
   '/personal/ai': typeof PersonalAppAiRoute
   '/personal/cycles': typeof PersonalAppCyclesRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/personal/login': typeof PersonalLoginRoute
   '/personal/': typeof PersonalIndexRoute
   '/personal/_app/$module': typeof PersonalAppModuleRoute
+  '/personal/_app/agenda': typeof PersonalAppAgendaRoute
   '/personal/_app/ai': typeof PersonalAppAiRoute
   '/personal/_app/cycles': typeof PersonalAppCyclesRoute
   '/personal/_app/dashboard': typeof PersonalAppDashboardRoute
@@ -160,6 +169,7 @@ export interface FileRouteTypes {
     | '/personal/login'
     | '/personal/'
     | '/personal/$module'
+    | '/personal/agenda'
     | '/personal/ai'
     | '/personal/cycles'
     | '/personal/dashboard'
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/personal'
     | '/personal/login'
     | '/personal/$module'
+    | '/personal/agenda'
     | '/personal/ai'
     | '/personal/cycles'
     | '/personal/dashboard'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/personal/login'
     | '/personal/'
     | '/personal/_app/$module'
+    | '/personal/_app/agenda'
     | '/personal/_app/ai'
     | '/personal/_app/cycles'
     | '/personal/_app/dashboard'
@@ -246,6 +258,13 @@ declare module '@tanstack/react-router' {
       path: '/$module'
       fullPath: '/personal/$module'
       preLoaderRoute: typeof PersonalAppModuleRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
+    '/personal/_app/agenda': {
+      id: '/personal/_app/agenda'
+      path: '/agenda'
+      fullPath: '/personal/agenda'
+      preLoaderRoute: typeof PersonalAppAgendaRouteImport
       parentRoute: typeof PersonalAppRoute
     }
     '/personal/_app/ai': {
@@ -336,6 +355,7 @@ const PersonalAppThelemaRouteWithChildren =
 
 interface PersonalAppRouteChildren {
   PersonalAppModuleRoute: typeof PersonalAppModuleRoute
+  PersonalAppAgendaRoute: typeof PersonalAppAgendaRoute
   PersonalAppAiRoute: typeof PersonalAppAiRoute
   PersonalAppCyclesRoute: typeof PersonalAppCyclesRoute
   PersonalAppDashboardRoute: typeof PersonalAppDashboardRoute
@@ -348,6 +368,7 @@ interface PersonalAppRouteChildren {
 
 const PersonalAppRouteChildren: PersonalAppRouteChildren = {
   PersonalAppModuleRoute: PersonalAppModuleRoute,
+  PersonalAppAgendaRoute: PersonalAppAgendaRoute,
   PersonalAppAiRoute: PersonalAppAiRoute,
   PersonalAppCyclesRoute: PersonalAppCyclesRoute,
   PersonalAppDashboardRoute: PersonalAppDashboardRoute,
