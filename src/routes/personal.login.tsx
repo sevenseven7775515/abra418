@@ -31,11 +31,9 @@ const BENEFITS = [
 
 function LoginPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "signup" | "reset">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -48,30 +46,19 @@ function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setMessage(null);
     try {
-      if (mode === "reset") {
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/personal/reset-password`,
-        });
-        if (error) throw error;
-        setMessage("Enviamos um link de redefinição para o seu e-mail.");
-      } else if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: `${window.location.origin}/personal/dashboard` },
-        });
-        if (error) throw error;
-        if (data.session) navigate({ to: "/personal/dashboard", replace: true });
-        else setMessage("Conta criada. Confirme seu e-mail para acessar.");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        navigate({ to: "/personal/dashboard", replace: true });
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+      if (error) throw error;
+      navigate({ to: "/personal/dashboard", replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Não foi possível continuar.");
+      setError(
+        err instanceof Error && /invalid/i.test(err.message)
+          ? "Credenciais inválidas."
+          : "Não foi possível entrar. Tente novamente.",
+      );
     } finally {
       setLoading(false);
     }
@@ -106,43 +93,30 @@ function LoginPage() {
         <section className="min-w-0">
           <div className="panel p-6 sm:p-8">
             <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">PERSONAL OS</p>
-            <h2 className="mt-2 text-xl font-bold">
-              {mode === "login" ? "Entrar na sua central" : mode === "signup" ? "Criar acesso" : "Recuperar acesso"}
-            </h2>
+            <h2 className="mt-2 text-xl font-bold">Entrar na sua central</h2>
+            <p className="mt-1 text-xs text-muted-foreground">Acesso privado autorizado.</p>
 
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">E-mail</Label>
                 <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="voce@email.com" />
               </div>
-              {mode !== "reset" && (
-                <div className="space-y-2">
-                  <Label htmlFor="password">Senha</Label>
-                  <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="password">Senha</Label>
+                <Input id="password" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+              </div>
 
               {error && <p className="text-sm text-destructive">{error}</p>}
-              {message && <p className="text-sm text-primary">{message}</p>}
 
               <Button type="submit" disabled={loading} className="h-11 w-full font-bold tracking-wide glow-neon">
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {mode === "login" ? "ENTRAR" : mode === "signup" ? "CRIAR CONTA" : "ENVIAR LINK"}
+                ENTRAR
               </Button>
             </form>
 
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
-              <button type="button" className="hover:text-foreground" onClick={() => setMode(mode === "reset" ? "login" : "reset")}>
-                {mode === "reset" ? "Voltar ao login" : "Esqueci minha senha"}
-              </button>
-              <button type="button" className="hover:text-foreground" onClick={() => setMode(mode === "signup" ? "login" : "signup")}>
-                {mode === "signup" ? "Já tenho conta" : "Criar conta"}
-              </button>
-            </div>
-
             <div className="mt-6 border-t border-border pt-4">
               <p className="text-[11px] text-muted-foreground">
-                Magic Link e login social ficam disponíveis em breve nesta mesma tela.
+                Ambiente restrito ao usuário autorizado. Sessão mantida até você sair.
               </p>
             </div>
           </div>
