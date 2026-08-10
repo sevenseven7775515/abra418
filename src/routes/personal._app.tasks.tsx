@@ -90,8 +90,9 @@ function TasksPage() {
     },
   });
 
+  type TaskPatch = { status?: string; checklist?: ChecklistItem[] };
   const updateTask = useMutation({
-    mutationFn: async ({ id, patch }: { id: string; patch: Record<string, unknown> }) => {
+    mutationFn: async ({ id, patch }: { id: string; patch: TaskPatch }) => {
       const { error } = await supabase.from("tasks").update(patch).eq("id", id);
       if (error) throw error;
     },
@@ -179,7 +180,7 @@ function TasksPage() {
               className="h-10 w-full rounded-md border border-input bg-transparent px-3 text-sm"
             >
               <option value="" className="bg-card">Sem categoria</option>
-              {AREAS[form.area].map((c) => (
+            {(AREAS[form.area] ?? []).map((c) => (
                 <option key={c} value={c} className="bg-card">{c}</option>
               ))}
             </select>
