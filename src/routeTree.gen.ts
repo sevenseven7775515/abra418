@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PersonalIndexRouteImport } from './routes/personal.index'
 import { Route as PersonalAppRouteImport } from './routes/personal._app'
 import { Route as PersonalLoginRouteImport } from './routes/personal.login'
+import { Route as PersonalAppModuleRouteImport } from './routes/personal._app.$module'
 import { Route as PersonalAppDashboardRouteImport } from './routes/personal._app.dashboard'
 import { Route as PersonalAppMissionsRouteImport } from './routes/personal._app.missions'
 import { Route as PersonalAppTasksRouteImport } from './routes/personal._app.tasks'
@@ -37,6 +38,11 @@ const PersonalLoginRoute = PersonalLoginRouteImport.update({
   path: '/personal/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PersonalAppModuleRoute = PersonalAppModuleRouteImport.update({
+  id: '/$module',
+  path: '/$module',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
 const PersonalAppDashboardRoute = PersonalAppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/personal': typeof PersonalAppRouteWithChildren
   '/personal/login': typeof PersonalLoginRoute
   '/personal/': typeof PersonalIndexRoute
+  '/personal/$module': typeof PersonalAppModuleRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/personal': typeof PersonalIndexRoute
   '/personal/login': typeof PersonalLoginRoute
+  '/personal/$module': typeof PersonalAppModuleRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/personal/_app': typeof PersonalAppRouteWithChildren
   '/personal/login': typeof PersonalLoginRoute
   '/personal/': typeof PersonalIndexRoute
+  '/personal/_app/$module': typeof PersonalAppModuleRoute
   '/personal/_app/dashboard': typeof PersonalAppDashboardRoute
   '/personal/_app/missions': typeof PersonalAppMissionsRoute
   '/personal/_app/tasks': typeof PersonalAppTasksRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/personal'
     | '/personal/login'
     | '/personal/'
+    | '/personal/$module'
     | '/personal/dashboard'
     | '/personal/missions'
     | '/personal/tasks'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/personal'
     | '/personal/login'
+    | '/personal/$module'
     | '/personal/dashboard'
     | '/personal/missions'
     | '/personal/tasks'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '/personal/_app'
     | '/personal/login'
     | '/personal/'
+    | '/personal/_app/$module'
     | '/personal/_app/dashboard'
     | '/personal/_app/missions'
     | '/personal/_app/tasks'
@@ -146,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonalLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/personal/_app/$module': {
+      id: '/personal/_app/$module'
+      path: '/$module'
+      fullPath: '/personal/$module'
+      preLoaderRoute: typeof PersonalAppModuleRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
     '/personal/_app/dashboard': {
       id: '/personal/_app/dashboard'
       path: '/dashboard'
@@ -171,12 +190,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface PersonalAppRouteChildren {
+  PersonalAppModuleRoute: typeof PersonalAppModuleRoute
   PersonalAppDashboardRoute: typeof PersonalAppDashboardRoute
   PersonalAppMissionsRoute: typeof PersonalAppMissionsRoute
   PersonalAppTasksRoute: typeof PersonalAppTasksRoute
 }
 
 const PersonalAppRouteChildren: PersonalAppRouteChildren = {
+  PersonalAppModuleRoute: PersonalAppModuleRoute,
   PersonalAppDashboardRoute: PersonalAppDashboardRoute,
   PersonalAppMissionsRoute: PersonalAppMissionsRoute,
   PersonalAppTasksRoute: PersonalAppTasksRoute,
