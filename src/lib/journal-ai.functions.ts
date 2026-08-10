@@ -158,7 +158,7 @@ export const askMyPast = createServerFn({ method: "POST" })
     if (!key) throw new Error("Assistente indisponível: chave de IA ausente.");
     const { supabase } = context;
 
-    const [entries, insights, events, logs, practices, books] = await Promise.all([
+    const [entries, insights, events, logs, practices, books, timeline, history] = await Promise.all([
       supabase.from("journal_entries")
         .select("entry_date, title, mood, energy, learnings, highlights, gratitude")
         .order("entry_date", { ascending: false }).limit(400),
@@ -167,6 +167,10 @@ export const askMyPast = createServerFn({ method: "POST" })
       supabase.from("practice_logs").select("log_date, practice_id").order("log_date", { ascending: false }).limit(400),
       supabase.from("practices").select("id, name, category"),
       supabase.from("books").select("title, author, status, rating").limit(100),
+      supabase.from("timeline_events").select("event_date, event_time, description, category")
+        .order("event_date", { ascending: false }).limit(3000),
+      supabase.from("practice_history").select("practice_date, practice_time, name, category")
+        .order("practice_date", { ascending: false }).limit(2000),
     ]);
 
     const snapshot = {
@@ -176,6 +180,8 @@ export const askMyPast = createServerFn({ method: "POST" })
       registrosDePratica: logs.data ?? [],
       praticas: practices.data ?? [],
       livros: books.data ?? [],
+      linhaDoTempo: timeline.data ?? [],
+      historicoDePraticas: history.data ?? [],
     };
 
     const { createLovableAiGatewayProvider } = await import("./ai-gateway.server");
@@ -186,10 +192,10 @@ export const askMyPast = createServerFn({ method: "POST" })
       model: gateway("google/gemini-3.6-flash"),
       system:
         "Você é a memória histórica do usuário no PERSONAL OS. Responda em português do Brasil, de forma direta e " +
-        "baseada EXCLUSIVAMENTE no histórico em JSON (diário, insights, acontecimentos, práticas e livros). " +
+        "baseada EXCLUSIVAMENTE no histórico em JSON (diário, insights, acontecimentos, linha do tempo, histórico de práticas e livros). " +
         "Sempre que possível cite datas, contagens e períodos concretos. Se o histórico não tiver a resposta, diga isso " +
         "e indique o que precisa ser registrado.",
-      prompt: `Histórico:\n${JSON.stringify(snapshot).slice(0, 120000)}\n\nPergunta: ${data.question}`,
+      prompt: `Histórico:\n${JSON.stringify(snapshot).slice(0, 160000)}\n\nPergunta: ${data.question}`,
     });
 
     return { answer: await result.text };

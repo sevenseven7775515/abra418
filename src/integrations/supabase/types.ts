@@ -452,8 +452,50 @@ export type Database = {
         }
         Relationships: []
       }
+      journal_backups: {
+        Row: {
+          created_at: string
+          entry_date: string | null
+          id: string
+          journal_id: string
+          raw_content: string | null
+          source_file: string | null
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entry_date?: string | null
+          id?: string
+          journal_id: string
+          raw_content?: string | null
+          source_file?: string | null
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entry_date?: string | null
+          id?: string
+          journal_id?: string
+          raw_content?: string | null
+          source_file?: string | null
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journal_backups_journal_id_fkey"
+            columns: ["journal_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       journal_entries: {
         Row: {
+          achievements: string | null
           content: string | null
           created_at: string
           energy: number | null
@@ -462,15 +504,22 @@ export type Database = {
           highlights: string | null
           id: string
           imported: boolean
+          insights: string | null
           learnings: string | null
+          main_activities: string | null
           mood: string | null
+          pending: string | null
           processed: boolean
+          reorganized: boolean
+          reorganized_at: string | null
           source_file: string | null
+          summary: string | null
           title: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          achievements?: string | null
           content?: string | null
           created_at?: string
           energy?: number | null
@@ -479,15 +528,22 @@ export type Database = {
           highlights?: string | null
           id?: string
           imported?: boolean
+          insights?: string | null
           learnings?: string | null
+          main_activities?: string | null
           mood?: string | null
+          pending?: string | null
           processed?: boolean
+          reorganized?: boolean
+          reorganized_at?: string | null
           source_file?: string | null
+          summary?: string | null
           title?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          achievements?: string | null
           content?: string | null
           created_at?: string
           energy?: number | null
@@ -496,10 +552,16 @@ export type Database = {
           highlights?: string | null
           id?: string
           imported?: boolean
+          insights?: string | null
           learnings?: string | null
+          main_activities?: string | null
           mood?: string | null
+          pending?: string | null
           processed?: boolean
+          reorganized?: boolean
+          reorganized_at?: string | null
           source_file?: string | null
+          summary?: string | null
           title?: string | null
           updated_at?: string
           user_id?: string
@@ -734,6 +796,66 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      practice_history: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          journal_id: string | null
+          name: string
+          notes: string | null
+          practice_date: string
+          practice_id: string | null
+          practice_time: string | null
+          source_file: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          journal_id?: string | null
+          name: string
+          notes?: string | null
+          practice_date: string
+          practice_id?: string | null
+          practice_time?: string | null
+          source_file?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          journal_id?: string | null
+          name?: string
+          notes?: string | null
+          practice_date?: string
+          practice_id?: string | null
+          practice_time?: string | null
+          source_file?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practice_history_journal_id_fkey"
+            columns: ["journal_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practice_history_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       practice_logs: {
         Row: {
@@ -1148,6 +1270,53 @@ export type Database = {
             columns: ["text_id"]
             isOneToOne: false
             referencedRelation: "thelema_texts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      timeline_events: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          event_date: string
+          event_time: string | null
+          id: string
+          journal_id: string | null
+          source: string
+          source_file: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description: string
+          event_date: string
+          event_time?: string | null
+          id?: string
+          journal_id?: string | null
+          source?: string
+          source_file?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          event_date?: string
+          event_time?: string | null
+          id?: string
+          journal_id?: string | null
+          source?: string
+          source_file?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "timeline_events_journal_id_fkey"
+            columns: ["journal_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
             referencedColumns: ["id"]
           },
         ]
