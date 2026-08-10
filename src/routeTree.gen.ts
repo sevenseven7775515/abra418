@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PersonalAppRouteImport } from './routes/personal._app'
 import { Route as PersonalLoginRouteImport } from './routes/personal.login'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PersonalAppRoute = PersonalAppRouteImport.update({
+  id: '/personal/_app',
+  path: '/personal',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PersonalLoginRoute = PersonalLoginRouteImport.update({
@@ -25,27 +31,31 @@ const PersonalLoginRoute = PersonalLoginRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/personal': typeof PersonalAppRoute
   '/personal/login': typeof PersonalLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/personal': typeof PersonalAppRoute
   '/personal/login': typeof PersonalLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/personal/_app': typeof PersonalAppRoute
   '/personal/login': typeof PersonalLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/personal/login'
+  fullPaths: '/' | '/personal' | '/personal/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/personal/login'
-  id: '__root__' | '/' | '/personal/login'
+  to: '/' | '/personal' | '/personal/login'
+  id: '__root__' | '/' | '/personal/_app' | '/personal/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PersonalAppRoute: typeof PersonalAppRoute
   PersonalLoginRoute: typeof PersonalLoginRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/personal/_app': {
+      id: '/personal/_app'
+      path: '/personal'
+      fullPath: '/personal'
+      preLoaderRoute: typeof PersonalAppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/personal/login': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PersonalAppRoute: PersonalAppRoute,
   PersonalLoginRoute: PersonalLoginRoute,
 }
 export const routeTree = rootRouteImport
