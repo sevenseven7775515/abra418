@@ -20,6 +20,7 @@ import { Route as PersonalAppMissionsRouteImport } from './routes/personal._app.
 import { Route as PersonalAppTasksRouteImport } from './routes/personal._app.tasks'
 import { Route as PersonalAppThelemaRouteImport } from './routes/personal._app.thelema'
 import { Route as PersonalAppThelemaIndexRouteImport } from './routes/personal._app.thelema.index'
+import { Route as PersonalAppThelemaJournalRouteImport } from './routes/personal._app.thelema.journal'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +77,12 @@ const PersonalAppThelemaIndexRoute = PersonalAppThelemaIndexRouteImport.update({
   path: '/',
   getParentRoute: () => PersonalAppThelemaRoute,
 } as any)
+const PersonalAppThelemaJournalRoute =
+  PersonalAppThelemaJournalRouteImport.update({
+    id: '/journal',
+    path: '/journal',
+    getParentRoute: () => PersonalAppThelemaRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/personal/missions': typeof PersonalAppMissionsRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
   '/personal/thelema': typeof PersonalAppThelemaRouteWithChildren
+  '/personal/thelema/journal': typeof PersonalAppThelemaJournalRoute
   '/personal/thelema/': typeof PersonalAppThelemaIndexRoute
 }
 export interface FileRoutesByTo {
@@ -99,6 +107,7 @@ export interface FileRoutesByTo {
   '/personal/dashboard': typeof PersonalAppDashboardRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
+  '/personal/thelema/journal': typeof PersonalAppThelemaJournalRoute
   '/personal/thelema': typeof PersonalAppThelemaIndexRoute
 }
 export interface FileRoutesById {
@@ -113,6 +122,7 @@ export interface FileRoutesById {
   '/personal/_app/missions': typeof PersonalAppMissionsRoute
   '/personal/_app/tasks': typeof PersonalAppTasksRoute
   '/personal/_app/thelema': typeof PersonalAppThelemaRouteWithChildren
+  '/personal/_app/thelema/journal': typeof PersonalAppThelemaJournalRoute
   '/personal/_app/thelema/': typeof PersonalAppThelemaIndexRoute
 }
 export interface FileRouteTypes {
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/personal/missions'
     | '/personal/tasks'
     | '/personal/thelema'
+    | '/personal/thelema/journal'
     | '/personal/thelema/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/personal/dashboard'
     | '/personal/missions'
     | '/personal/tasks'
+    | '/personal/thelema/journal'
     | '/personal/thelema'
   id:
     | '__root__'
@@ -152,6 +164,7 @@ export interface FileRouteTypes {
     | '/personal/_app/missions'
     | '/personal/_app/tasks'
     | '/personal/_app/thelema'
+    | '/personal/_app/thelema/journal'
     | '/personal/_app/thelema/'
   fileRoutesById: FileRoutesById
 }
@@ -241,14 +254,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonalAppThelemaIndexRouteImport
       parentRoute: typeof PersonalAppThelemaRoute
     }
+    '/personal/_app/thelema/journal': {
+      id: '/personal/_app/thelema/journal'
+      path: '/journal'
+      fullPath: '/personal/thelema/journal'
+      preLoaderRoute: typeof PersonalAppThelemaJournalRouteImport
+      parentRoute: typeof PersonalAppThelemaRoute
+    }
   }
 }
 
 interface PersonalAppThelemaRouteChildren {
+  PersonalAppThelemaJournalRoute: typeof PersonalAppThelemaJournalRoute
   PersonalAppThelemaIndexRoute: typeof PersonalAppThelemaIndexRoute
 }
 
 const PersonalAppThelemaRouteChildren: PersonalAppThelemaRouteChildren = {
+  PersonalAppThelemaJournalRoute: PersonalAppThelemaJournalRoute,
   PersonalAppThelemaIndexRoute: PersonalAppThelemaIndexRoute,
 }
 
