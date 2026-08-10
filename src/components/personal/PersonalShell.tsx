@@ -144,7 +144,6 @@ export function PersonalShell({
       <Link
         to="/personal/$module"
         params={{ module: "tasks" }}
-        search={{ new: true }}
         className="fixed bottom-24 right-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground glow-neon lg:hidden"
         aria-label="Adicionar rapidamente"
       >
