@@ -14,6 +14,7 @@ import { Route as PersonalIndexRouteImport } from './routes/personal.index'
 import { Route as PersonalAppRouteImport } from './routes/personal._app'
 import { Route as PersonalLoginRouteImport } from './routes/personal.login'
 import { Route as PersonalAppDashboardRouteImport } from './routes/personal._app.dashboard'
+import { Route as PersonalAppMissionsRouteImport } from './routes/personal._app.missions'
 import { Route as PersonalAppTasksRouteImport } from './routes/personal._app.tasks'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const PersonalAppDashboardRoute = PersonalAppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => PersonalAppRoute,
 } as any)
+const PersonalAppMissionsRoute = PersonalAppMissionsRouteImport.update({
+  id: '/missions',
+  path: '/missions',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
 const PersonalAppTasksRoute = PersonalAppTasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/personal/login': typeof PersonalLoginRoute
   '/personal/': typeof PersonalIndexRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
+  '/personal/missions': typeof PersonalAppMissionsRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
 }
 export interface FileRoutesByTo {
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/personal': typeof PersonalIndexRoute
   '/personal/login': typeof PersonalLoginRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
+  '/personal/missions': typeof PersonalAppMissionsRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
 }
 export interface FileRoutesById {
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/personal/login': typeof PersonalLoginRoute
   '/personal/': typeof PersonalIndexRoute
   '/personal/_app/dashboard': typeof PersonalAppDashboardRoute
+  '/personal/_app/missions': typeof PersonalAppMissionsRoute
   '/personal/_app/tasks': typeof PersonalAppTasksRoute
 }
 export interface FileRouteTypes {
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/personal/login'
     | '/personal/'
     | '/personal/dashboard'
+    | '/personal/missions'
     | '/personal/tasks'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/personal'
     | '/personal/login'
     | '/personal/dashboard'
+    | '/personal/missions'
     | '/personal/tasks'
   id:
     | '__root__'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/personal/login'
     | '/personal/'
     | '/personal/_app/dashboard'
+    | '/personal/_app/missions'
     | '/personal/_app/tasks'
   fileRoutesById: FileRoutesById
 }
@@ -141,6 +153,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonalAppDashboardRouteImport
       parentRoute: typeof PersonalAppRoute
     }
+    '/personal/_app/missions': {
+      id: '/personal/_app/missions'
+      path: '/missions'
+      fullPath: '/personal/missions'
+      preLoaderRoute: typeof PersonalAppMissionsRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
     '/personal/_app/tasks': {
       id: '/personal/_app/tasks'
       path: '/tasks'
@@ -153,11 +172,13 @@ declare module '@tanstack/react-router' {
 
 interface PersonalAppRouteChildren {
   PersonalAppDashboardRoute: typeof PersonalAppDashboardRoute
+  PersonalAppMissionsRoute: typeof PersonalAppMissionsRoute
   PersonalAppTasksRoute: typeof PersonalAppTasksRoute
 }
 
 const PersonalAppRouteChildren: PersonalAppRouteChildren = {
   PersonalAppDashboardRoute: PersonalAppDashboardRoute,
+  PersonalAppMissionsRoute: PersonalAppMissionsRoute,
   PersonalAppTasksRoute: PersonalAppTasksRoute,
 }
 
