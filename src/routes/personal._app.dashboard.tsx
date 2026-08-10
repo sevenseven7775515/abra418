@@ -1,10 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { AlertTriangle, BookOpen, Brain, CalendarClock, CalendarDays, Flame, MapPin, Sun, Target, Wallet } from "lucide-react";
+import { Activity, AlertTriangle, BookOpen, Brain, CalendarClock, CalendarDays, CloudSun, Flame, MapPin, Moon, Sun, Target, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PersonalShell } from "@/components/personal/PersonalShell";
 import { money, dateBR } from "@/components/personal/kit";
+import { fetchWeather } from "@/lib/weather";
+import { currentPlanetaryHour, dayRuler, moonIllumination, moonPhase, moonSign } from "@/lib/astro";
+import {
+  currentStreak, daysAgo, disciplineScore, energyScore, lifePhase, moodScore,
+  productivityScore, rangeAdherence,
+} from "@/lib/personal-insights";
 
 export const Route = createFileRoute("/personal/_app/dashboard")({
   head: () => ({
@@ -35,6 +41,20 @@ function greeting(hour: number) {
   if (hour < 12) return "Bom dia";
   if (hour < 18) return "Boa tarde";
   return "Boa noite";
+}
+
+function ScoreBar({ label, value }: { label: string; value: number | null }) {
+  return (
+    <div>
+      <div className="flex items-center justify-between text-xs">
+        <span className="text-muted-foreground">{label}</span>
+        <span className="font-semibold text-foreground">{value === null ? "—" : `${value}%`}</span>
+      </div>
+      <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-secondary">
+        <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${value ?? 0}%` }} />
+      </div>
+    </div>
+  );
 }
 
 function DashboardPage() {
@@ -84,6 +104,31 @@ function DashboardPage() {
     },
   });
 
+  const { data: state } = useQuery({
+    queryKey: ["dashboard-state"],
+    queryFn: async () => {
+      const [settings, journal, logs, activePractices] = await Promise.all([
+        supabase.from("user_settings").select("display_name, avatar_url, location").maybeSingle(),
+        supabase.from("journal_entries").select("entry_date, mood, energy").order("entry_date", { ascending: false }).limit(120),
+        supabase.from("practice_logs").select("practice_id, log_date").gte("log_date", daysAgo(60)),
+        supabase.from("practices").select("id").eq("active", true),
+      ]);
+      return {
+        settings: settings.data ?? null,
+        journal: journal.data ?? [],
+        logs: logs.data ?? [],
+        activePractices: activePractices.data?.length ?? 0,
+      };
+    },
+  });
+
+  const { data: weather } = useQuery({
+    queryKey: ["weather-sjdr"],
+    queryFn: fetchWeather,
+    staleTime: 15 * 60_000,
+    retry: 1,
+  });
+
   const fin = widgets?.finance ?? [];
   const income = fin.filter((t) => t.kind === "receita").reduce((s, t) => s + t.amount, 0);
   const expense = fin.filter((t) => t.kind === "despesa").reduce((s, t) => s + t.amount, 0);
@@ -103,10 +148,50 @@ function DashboardPage() {
     .slice(0, 3);
   const routine = tasks.length ? Math.round((done.length / tasks.length) * 100) : 0;
 
-  const firstName = "Marcos";
+  const journalEntries = state?.journal ?? [];
+  const practiceHistory = state?.logs ?? [];
+  const activePractices = state?.activePractices ?? 0;
+  const scores = {
+    energy: energyScore(journalEntries),
+    mood: moodScore(journalEntries),
+    productivity: productivityScore(tasks),
+    discipline: disciplineScore(practiceHistory, activePractices),
+  };
+  const phase = lifePhase(scores, data?.missions.length ?? 0, open.length);
+  const streak = currentStreak(practiceHistory);
+  const week = rangeAdherence(practiceHistory, activePractices, 7);
+  const month = rangeAdherence(practiceHistory, activePractices, 30);
+
+  const fullName = state?.settings?.display_name?.trim() || "Marcos";
+  const firstName = fullName.split(" ")[0] ?? "Marcos";
+  const avatarUrl = state?.settings?.avatar_url ?? null;
+  const place = state?.settings?.location?.trim() || "São João del-Rei — MG";
+  const initials = fullName.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
+  const hour = currentPlanetaryHour(now);
+  const phaseMoon = moonPhase(now);
 
   return (
     <PersonalShell title={`${greeting(now.getHours())}, ${firstName}.`} subtitle="Seu painel pessoal de comando.">
+      <section className="panel mb-4 flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
+        <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-primary bg-secondary glow-neon">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={`Foto de perfil de ${fullName}`} className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-xl font-black text-primary">{initials || "M"}</span>
+          )}
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-lg font-black tracking-tight">{greeting(now.getHours())}, {firstName}.</h2>
+          <p className="mt-0.5 text-xs capitalize text-muted-foreground">
+            {now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })} · {place}
+          </p>
+          <p className="mt-2 inline-flex rounded-full border border-primary/40 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
+            {phase.phase}
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">{phase.summary}</p>
+        </div>
+      </section>
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         <Panel title="Hoje" icon={Sun}>
           <p className="text-3xl font-black tracking-tight">
@@ -116,15 +201,34 @@ function DashboardPage() {
             {now.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })}
           </p>
           <p className="mt-4 flex items-center gap-2 text-sm text-foreground/80">
-            <MapPin className="h-4 w-4 text-primary" /> São João del-Rei — MG
+            <MapPin className="h-4 w-4 text-primary" /> {place}
           </p>
           <div className="mt-4 grid grid-cols-3 gap-2 text-center text-[11px] text-muted-foreground">
-            {["Clima", "Nascer do sol", "Pôr do sol"].map((l) => (
-              <div key={l} className="rounded-xl border border-border bg-secondary/40 px-2 py-3">
-                <p className="text-foreground/70">{l}</p>
-                <p className="mt-1">em breve</p>
-              </div>
-            ))}
+            <div className="rounded-xl border border-border bg-secondary/40 px-2 py-3">
+              <p className="flex items-center justify-center gap-1 text-foreground/70"><CloudSun className="h-3.5 w-3.5 text-primary" /> Clima</p>
+              <p className="mt-1 font-semibold text-foreground">{weather ? `${weather.temperature}°C` : "—"}</p>
+              <p className="mt-0.5">{weather ? weather.label : "carregando"}</p>
+            </div>
+            <div className="rounded-xl border border-border bg-secondary/40 px-2 py-3">
+              <p className="text-foreground/70">Nascer do sol</p>
+              <p className="mt-1 font-semibold text-foreground">{weather?.sunrise ?? "—"}</p>
+              <p className="mt-0.5">mín {weather ? `${weather.min}°` : "—"}</p>
+            </div>
+            <div className="rounded-xl border border-border bg-secondary/40 px-2 py-3">
+              <p className="text-foreground/70">Pôr do sol</p>
+              <p className="mt-1 font-semibold text-foreground">{weather?.sunset ?? "—"}</p>
+              <p className="mt-0.5">máx {weather ? `${weather.max}°` : "—"}</p>
+            </div>
+          </div>
+          <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+            <p className="flex items-center gap-2 rounded-xl border border-border bg-secondary/30 px-3 py-2">
+              <Moon className="h-3.5 w-3.5 text-primary" />
+              {phaseMoon.label} · {(moonIllumination(now) * 100).toFixed(0)}% · {moonSign(now).name}
+            </p>
+            <p className="flex items-center gap-2 rounded-xl border border-border bg-secondary/30 px-3 py-2">
+              <Activity className="h-3.5 w-3.5 text-primary" />
+              Hora de {hour.planet} · dia de {dayRuler(now)}
+            </p>
           </div>
         </Panel>
 
@@ -186,6 +290,20 @@ function DashboardPage() {
 
         <Panel title="Evolução pessoal" icon={Flame}>
           <div className="grid gap-3">
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-xl border border-border bg-secondary/30 px-2 py-3">
+                <p className="text-[11px] text-muted-foreground">Sequência</p>
+                <p className="text-xl font-bold text-neon">{streak}d</p>
+              </div>
+              <div className="rounded-xl border border-border bg-secondary/30 px-2 py-3">
+                <p className="text-[11px] text-muted-foreground">Semana</p>
+                <p className="text-xl font-bold">{week}%</p>
+              </div>
+              <div className="rounded-xl border border-border bg-secondary/30 px-2 py-3">
+                <p className="text-[11px] text-muted-foreground">Mês</p>
+                <p className="text-xl font-bold">{month}%</p>
+              </div>
+            </div>
             <div className="rounded-xl border border-border bg-secondary/30 px-3 py-3">
               <p className="text-xs text-muted-foreground">Missões ativas</p>
               <p className="text-2xl font-bold">{data?.missions.length ?? 0}</p>
@@ -196,6 +314,18 @@ function DashboardPage() {
               {widgets?.journal[0] ? `último diário ${dateBR(widgets.journal[0].entry_date)}` : "sem registro no diário"}
             </div>
           </div>
+        </Panel>
+
+        <Panel title="Como estou?" icon={Activity}>
+          <div className="grid gap-3">
+            <ScoreBar label="Energia" value={scores.energy} />
+            <ScoreBar label="Humor" value={scores.mood} />
+            <ScoreBar label="Produtividade" value={scores.productivity} />
+            <ScoreBar label="Disciplina" value={scores.discipline} />
+          </div>
+          <Link to="/personal/patterns" className="mt-4 inline-block text-xs text-primary hover:underline">
+            Ver reconhecimento de padrões →
+          </Link>
         </Panel>
 
         <Panel title="Próximos compromissos" icon={CalendarDays}>
