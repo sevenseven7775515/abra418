@@ -5,6 +5,7 @@ import { Activity, AlertTriangle, BookOpen, Brain, CalendarClock, CalendarDays, 
 import { supabase } from "@/integrations/supabase/client";
 import { PersonalShell } from "@/components/personal/PersonalShell";
 import { money, dateBR } from "@/components/personal/kit";
+import marcosAvatar from "@/assets/marcos.png.asset.json";
 import { fetchWeather } from "@/lib/weather";
 import { currentPlanetaryHour, dayRuler, moonIllumination, moonPhase, moonSign } from "@/lib/astro";
 import {
@@ -164,9 +165,8 @@ function DashboardPage() {
 
   const fullName = state?.settings?.display_name?.trim() || "Marcos";
   const firstName = fullName.split(" ")[0] ?? "Marcos";
-  const avatarUrl = state?.settings?.avatar_url ?? null;
+  const avatarUrl = state?.settings?.avatar_url || marcosAvatar.url;
   const place = state?.settings?.location?.trim() || "São João del-Rei — MG";
-  const initials = fullName.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
   const hour = currentPlanetaryHour(now);
   const phaseMoon = moonPhase(now);
 
@@ -174,11 +174,11 @@ function DashboardPage() {
     <PersonalShell title={`${greeting(now.getHours())}, ${firstName}.`} subtitle="Seu painel pessoal de comando.">
       <section className="panel mb-4 flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
         <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-primary bg-secondary glow-neon">
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={`Foto de perfil de ${fullName}`} className="h-full w-full object-cover" />
-          ) : (
-            <span className="text-xl font-black text-primary">{initials || "M"}</span>
-          )}
+          <img
+            src={avatarUrl}
+            alt={`Foto de perfil de ${fullName}`}
+            className="h-full w-full object-cover object-top"
+          />
         </div>
         <div className="min-w-0">
           <h2 className="text-lg font-black tracking-tight">{greeting(now.getHours())}, {firstName}.</h2>
