@@ -16,6 +16,7 @@ import { Route as PersonalLoginRouteImport } from './routes/personal.login'
 import { Route as PersonalAppModuleRouteImport } from './routes/personal._app.$module'
 import { Route as PersonalAppCyclesRouteImport } from './routes/personal._app.cycles'
 import { Route as PersonalAppDashboardRouteImport } from './routes/personal._app.dashboard'
+import { Route as PersonalAppMapRouteImport } from './routes/personal._app.map'
 import { Route as PersonalAppMissionsRouteImport } from './routes/personal._app.missions'
 import { Route as PersonalAppSelfRouteImport } from './routes/personal._app.self'
 import { Route as PersonalAppTasksRouteImport } from './routes/personal._app.tasks'
@@ -58,6 +59,11 @@ const PersonalAppDashboardRoute = PersonalAppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => PersonalAppRoute,
 } as any)
+const PersonalAppMapRoute = PersonalAppMapRouteImport.update({
+  id: '/map',
+  path: '/map',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
 const PersonalAppMissionsRoute = PersonalAppMissionsRouteImport.update({
   id: '/missions',
   path: '/missions',
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/personal/$module': typeof PersonalAppModuleRoute
   '/personal/cycles': typeof PersonalAppCyclesRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
+  '/personal/map': typeof PersonalAppMapRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
   '/personal/self': typeof PersonalAppSelfRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/personal/$module': typeof PersonalAppModuleRoute
   '/personal/cycles': typeof PersonalAppCyclesRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
+  '/personal/map': typeof PersonalAppMapRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
   '/personal/self': typeof PersonalAppSelfRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/personal/_app/$module': typeof PersonalAppModuleRoute
   '/personal/_app/cycles': typeof PersonalAppCyclesRoute
   '/personal/_app/dashboard': typeof PersonalAppDashboardRoute
+  '/personal/_app/map': typeof PersonalAppMapRoute
   '/personal/_app/missions': typeof PersonalAppMissionsRoute
   '/personal/_app/self': typeof PersonalAppSelfRoute
   '/personal/_app/tasks': typeof PersonalAppTasksRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/personal/$module'
     | '/personal/cycles'
     | '/personal/dashboard'
+    | '/personal/map'
     | '/personal/missions'
     | '/personal/self'
     | '/personal/tasks'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/personal/$module'
     | '/personal/cycles'
     | '/personal/dashboard'
+    | '/personal/map'
     | '/personal/missions'
     | '/personal/self'
     | '/personal/tasks'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/personal/_app/$module'
     | '/personal/_app/cycles'
     | '/personal/_app/dashboard'
+    | '/personal/_app/map'
     | '/personal/_app/missions'
     | '/personal/_app/self'
     | '/personal/_app/tasks'
@@ -238,6 +250,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonalAppDashboardRouteImport
       parentRoute: typeof PersonalAppRoute
     }
+    '/personal/_app/map': {
+      id: '/personal/_app/map'
+      path: '/map'
+      fullPath: '/personal/map'
+      preLoaderRoute: typeof PersonalAppMapRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
     '/personal/_app/missions': {
       id: '/personal/_app/missions'
       path: '/missions'
@@ -300,6 +319,7 @@ interface PersonalAppRouteChildren {
   PersonalAppModuleRoute: typeof PersonalAppModuleRoute
   PersonalAppCyclesRoute: typeof PersonalAppCyclesRoute
   PersonalAppDashboardRoute: typeof PersonalAppDashboardRoute
+  PersonalAppMapRoute: typeof PersonalAppMapRoute
   PersonalAppMissionsRoute: typeof PersonalAppMissionsRoute
   PersonalAppSelfRoute: typeof PersonalAppSelfRoute
   PersonalAppTasksRoute: typeof PersonalAppTasksRoute
@@ -310,6 +330,7 @@ const PersonalAppRouteChildren: PersonalAppRouteChildren = {
   PersonalAppModuleRoute: PersonalAppModuleRoute,
   PersonalAppCyclesRoute: PersonalAppCyclesRoute,
   PersonalAppDashboardRoute: PersonalAppDashboardRoute,
+  PersonalAppMapRoute: PersonalAppMapRoute,
   PersonalAppMissionsRoute: PersonalAppMissionsRoute,
   PersonalAppSelfRoute: PersonalAppSelfRoute,
   PersonalAppTasksRoute: PersonalAppTasksRoute,
