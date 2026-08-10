@@ -167,7 +167,6 @@ function DashboardPage() {
   const firstName = fullName.split(" ")[0] ?? "Marcos";
   const avatarUrl = state?.settings?.avatar_url || marcosAvatar.url;
   const place = state?.settings?.location?.trim() || "São João del-Rei — MG";
-  const initials = fullName.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
   const hour = currentPlanetaryHour(now);
   const phaseMoon = moonPhase(now);
 
