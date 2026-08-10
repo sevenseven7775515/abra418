@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Download, LogOut, Save } from "lucide-react";
+import { Download, LogOut, Save, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PersonalShell } from "@/components/personal/PersonalShell";
 import { Button } from "@/components/ui/button";
@@ -32,8 +32,9 @@ function SettingsPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const userId = useUserId();
-  const [form, setForm] = useState({ display_name: "", bio: "", location: "", theme: "dark", notifications: true });
+  const [form, setForm] = useState({ display_name: "", bio: "", location: "", theme: "dark", notifications: true, avatar_url: "" });
   const [saved, setSaved] = useState(false);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
 
   const { data: email } = useQuery({
     queryKey: ["auth-email"],
@@ -57,6 +58,7 @@ function SettingsPage() {
         location: settings.location ?? "",
         theme: settings.theme ?? "dark",
         notifications: settings.notifications !== false,
+        avatar_url: settings.avatar_url ?? "",
       });
     }
   }, [settings]);
@@ -97,6 +99,24 @@ function SettingsPage() {
     navigate({ to: "/personal/login", replace: true });
   }
 
+  async function pickAvatar(file: File) {
+    setAvatarError(null);
+    try {
+      const bitmap = await createImageBitmap(file);
+      const size = 320;
+      const canvas = document.createElement("canvas");
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Não foi possível processar a imagem.");
+      const side = Math.min(bitmap.width, bitmap.height);
+      ctx.drawImage(bitmap, (bitmap.width - side) / 2, (bitmap.height - side) / 2, side, side, 0, 0, size, size);
+      setForm((f) => ({ ...f, avatar_url: canvas.toDataURL("image/jpeg", 0.85) }));
+    } catch {
+      setAvatarError("Não foi possível ler essa imagem. Use JPG ou PNG.");
+    }
+  }
+
   return (
     <PersonalShell title="Configurações" subtitle="Perfil, preferências e seus dados.">
       <div className="mb-6 grid gap-3 sm:grid-cols-2">
@@ -105,6 +125,31 @@ function SettingsPage() {
       </div>
 
       <form onSubmit={(e) => { e.preventDefault(); save.mutate(); }} className="panel mb-6 grid gap-4 p-5 sm:grid-cols-2">
+        <div className="flex items-center gap-4 sm:col-span-2">
+          <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-primary bg-secondary">
+            {form.avatar_url
+              ? <img src={form.avatar_url} alt="Foto de perfil" className="h-full w-full object-cover" />
+              : <span className="text-xs text-muted-foreground">sem foto</span>}
+          </div>
+          <div className="grid gap-2">
+            <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-md border border-border px-3 py-2 text-sm hover:border-primary hover:text-primary">
+              <Upload className="h-4 w-4" /> Escolher foto
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) void pickAvatar(f); }}
+              />
+            </label>
+            {form.avatar_url && (
+              <button type="button" onClick={() => setForm({ ...form, avatar_url: "" })} className="w-fit text-xs text-muted-foreground hover:text-destructive">
+                Remover foto
+              </button>
+            )}
+            {avatarError && <p className="text-xs text-destructive">{avatarError}</p>}
+            <p className="text-xs text-muted-foreground">A foto aparece na sua Dashboard. Salve para aplicar.</p>
+          </div>
+        </div>
         <Field label="Nome de exibição"><Input value={form.display_name} onChange={(e) => setForm({ ...form, display_name: e.target.value })} /></Field>
         <Field label="Localização"><Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="São João del-Rei - MG" /></Field>
         <Field label="Tema">
