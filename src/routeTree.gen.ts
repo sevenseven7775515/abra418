@@ -33,6 +33,7 @@ import { Route as PersonalAppSettingsRouteImport } from './routes/personal._app.
 import { Route as PersonalAppShoppingRouteImport } from './routes/personal._app.shopping'
 import { Route as PersonalAppTasksRouteImport } from './routes/personal._app.tasks'
 import { Route as PersonalAppThelemaRouteImport } from './routes/personal._app.thelema'
+import { Route as PersonalAppTimelineRouteImport } from './routes/personal._app.timeline'
 import { Route as PersonalAppThelemaIndexRouteImport } from './routes/personal._app.thelema.index'
 import { Route as PersonalAppThelemaJournalRouteImport } from './routes/personal._app.thelema.journal'
 
@@ -156,6 +157,11 @@ const PersonalAppThelemaRoute = PersonalAppThelemaRouteImport.update({
   path: '/thelema',
   getParentRoute: () => PersonalAppRoute,
 } as any)
+const PersonalAppTimelineRoute = PersonalAppTimelineRouteImport.update({
+  id: '/timeline',
+  path: '/timeline',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
 const PersonalAppThelemaIndexRoute = PersonalAppThelemaIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -193,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/personal/shopping': typeof PersonalAppShoppingRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
   '/personal/thelema': typeof PersonalAppThelemaRouteWithChildren
+  '/personal/timeline': typeof PersonalAppTimelineRoute
   '/personal/thelema/journal': typeof PersonalAppThelemaJournalRoute
   '/personal/thelema/': typeof PersonalAppThelemaIndexRoute
 }
@@ -219,6 +226,7 @@ export interface FileRoutesByTo {
   '/personal/settings': typeof PersonalAppSettingsRoute
   '/personal/shopping': typeof PersonalAppShoppingRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
+  '/personal/timeline': typeof PersonalAppTimelineRoute
   '/personal/thelema/journal': typeof PersonalAppThelemaJournalRoute
   '/personal/thelema': typeof PersonalAppThelemaIndexRoute
 }
@@ -248,6 +256,7 @@ export interface FileRoutesById {
   '/personal/_app/shopping': typeof PersonalAppShoppingRoute
   '/personal/_app/tasks': typeof PersonalAppTasksRoute
   '/personal/_app/thelema': typeof PersonalAppThelemaRouteWithChildren
+  '/personal/_app/timeline': typeof PersonalAppTimelineRoute
   '/personal/_app/thelema/journal': typeof PersonalAppThelemaJournalRoute
   '/personal/_app/thelema/': typeof PersonalAppThelemaIndexRoute
 }
@@ -278,6 +287,7 @@ export interface FileRouteTypes {
     | '/personal/shopping'
     | '/personal/tasks'
     | '/personal/thelema'
+    | '/personal/timeline'
     | '/personal/thelema/journal'
     | '/personal/thelema/'
   fileRoutesByTo: FileRoutesByTo
@@ -304,6 +314,7 @@ export interface FileRouteTypes {
     | '/personal/settings'
     | '/personal/shopping'
     | '/personal/tasks'
+    | '/personal/timeline'
     | '/personal/thelema/journal'
     | '/personal/thelema'
   id:
@@ -332,6 +343,7 @@ export interface FileRouteTypes {
     | '/personal/_app/shopping'
     | '/personal/_app/tasks'
     | '/personal/_app/thelema'
+    | '/personal/_app/timeline'
     | '/personal/_app/thelema/journal'
     | '/personal/_app/thelema/'
   fileRoutesById: FileRoutesById
@@ -513,6 +525,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonalAppThelemaRouteImport
       parentRoute: typeof PersonalAppRoute
     }
+    '/personal/_app/timeline': {
+      id: '/personal/_app/timeline'
+      path: '/timeline'
+      fullPath: '/personal/timeline'
+      preLoaderRoute: typeof PersonalAppTimelineRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
     '/personal/_app/thelema/': {
       id: '/personal/_app/thelema/'
       path: '/'
@@ -564,6 +583,7 @@ interface PersonalAppRouteChildren {
   PersonalAppShoppingRoute: typeof PersonalAppShoppingRoute
   PersonalAppTasksRoute: typeof PersonalAppTasksRoute
   PersonalAppThelemaRoute: typeof PersonalAppThelemaRouteWithChildren
+  PersonalAppTimelineRoute: typeof PersonalAppTimelineRoute
 }
 
 const PersonalAppRouteChildren: PersonalAppRouteChildren = {
@@ -587,6 +607,7 @@ const PersonalAppRouteChildren: PersonalAppRouteChildren = {
   PersonalAppShoppingRoute: PersonalAppShoppingRoute,
   PersonalAppTasksRoute: PersonalAppTasksRoute,
   PersonalAppThelemaRoute: PersonalAppThelemaRouteWithChildren,
+  PersonalAppTimelineRoute: PersonalAppTimelineRoute,
 }
 
 const PersonalAppRouteWithChildren = PersonalAppRoute._addFileChildren(

@@ -1,7 +1,7 @@
 import {
   Home, CalendarDays, CheckSquare, Target, Briefcase, Wallet, ShoppingCart,
   FolderOpen, Brain, Library, BookOpen, Moon, Flame, ScrollText, Bot, Settings,
-  UserCircle, Map, Radar,
+  UserCircle, Map, Radar, History,
   type LucideIcon,
 } from "lucide-react";
 
@@ -27,6 +27,7 @@ export const NAV_ITEMS: NavItem[] = [
   { slug: "cycles", label: "Ciclos", icon: Moon, ready: true },
   { slug: "practices", label: "Práticas", icon: Flame, ready: true },
   { slug: "patterns", label: "Padrões", icon: Radar, ready: true },
+  { slug: "timeline", label: "Linha do Tempo", icon: History, ready: true },
   { slug: "thelema", label: "Thelema", icon: ScrollText, ready: true },
   { slug: "self", label: "Meu Perfil", icon: UserCircle, ready: true },
   { slug: "map", label: "Meu Mapa", icon: Map, ready: true },
