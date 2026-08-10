@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { AlertTriangle, BookOpen, CalendarClock, Flame, MapPin, Sun, Target } from "lucide-react";
+import { AlertTriangle, BookOpen, Brain, CalendarClock, CalendarDays, Flame, MapPin, Sun, Target, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PersonalShell } from "@/components/personal/PersonalShell";
+import { money, dateBR } from "@/components/personal/kit";
 
 export const Route = createFileRoute("/personal/_app/dashboard")({
   head: () => ({
@@ -58,6 +59,38 @@ function DashboardPage() {
 
   const tasks = data?.tasks ?? [];
   const today = now.toISOString().slice(0, 10);
+
+  const { data: widgets } = useQuery({
+    queryKey: ["dashboard-widgets"],
+    queryFn: async () => {
+      const [events, finance, notes, books, practices, practiceLogs, journal] = await Promise.all([
+        supabase.from("events").select("*").gte("event_date", new Date().toISOString().slice(0, 10)).order("event_date").limit(4),
+        supabase.from("finance_transactions").select("*"),
+        supabase.from("brain_notes").select("id,title,area,created_at").order("created_at", { ascending: false }).limit(3),
+        supabase.from("books").select("id,title,status"),
+        supabase.from("practices").select("id,name"),
+        supabase.from("practice_logs").select("practice_id,log_date").eq("log_date", new Date().toISOString().slice(0, 10)),
+        supabase.from("journal_entries").select("id,entry_date,mood").order("entry_date", { ascending: false }).limit(1),
+      ]);
+      return {
+        events: events.data ?? [],
+        finance: (finance.data ?? []).map((r) => ({ ...r, amount: Number(r.amount) })),
+        notes: notes.data ?? [],
+        books: books.data ?? [],
+        practices: practices.data ?? [],
+        practiceLogs: practiceLogs.data ?? [],
+        journal: journal.data ?? [],
+      };
+    },
+  });
+
+  const fin = widgets?.finance ?? [];
+  const income = fin.filter((t) => t.kind === "receita").reduce((s, t) => s + t.amount, 0);
+  const expense = fin.filter((t) => t.kind === "despesa").reduce((s, t) => s + t.amount, 0);
+  const upcomingBills = fin.filter((t) => t.kind === "despesa" && !t.paid && t.due_date && t.due_date >= today);
+  const practicesDone = widgets?.practiceLogs.length ?? 0;
+  const practicesTotal = widgets?.practices.length ?? 0;
+
   const done = tasks.filter((t) => t.status === "concluido");
   const open = tasks.filter((t) => t.status !== "concluido");
   const late = open.filter((t) => t.due_date && t.due_date < today);
@@ -142,11 +175,11 @@ function DashboardPage() {
             </li>
             <li className="flex items-center justify-between gap-3">
               <span className="text-muted-foreground">Contas próximas</span>
-              <span className="text-xs text-muted-foreground">módulo em breve</span>
+              <span className="font-bold text-foreground">{upcomingBills.length}</span>
             </li>
             <li className="flex items-center justify-between gap-3">
-              <span className="text-muted-foreground">Documentos pendentes</span>
-              <span className="text-xs text-muted-foreground">módulo em breve</span>
+              <span className="text-muted-foreground">Práticas de hoje</span>
+              <span className="font-bold text-foreground">{practicesDone}/{practicesTotal}</span>
             </li>
           </ul>
         </Panel>
@@ -158,9 +191,59 @@ function DashboardPage() {
               <p className="text-2xl font-bold">{data?.missions.length ?? 0}</p>
             </div>
             <div className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 px-3 py-3 text-sm text-muted-foreground">
-              <BookOpen className="h-4 w-4 text-primary" /> Livros e práticas chegam nos próximos módulos
+              <BookOpen className="h-4 w-4 text-primary" />
+              {(widgets?.books.filter((b) => b.status === "lendo").length ?? 0)} livro(s) em leitura ·{" "}
+              {widgets?.journal[0] ? `último diário ${dateBR(widgets.journal[0].entry_date)}` : "sem registro no diário"}
             </div>
           </div>
+        </Panel>
+
+        <Panel title="Próximos compromissos" icon={CalendarDays}>
+          {(widgets?.events.length ?? 0) === 0 ? (
+            <p className="text-sm text-muted-foreground">Nenhum evento agendado.</p>
+          ) : (
+            <ul className="space-y-2 text-sm">
+              {widgets?.events.map((e) => (
+                <li key={e.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-secondary/30 px-3 py-2">
+                  <span className="min-w-0 truncate">{e.title}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">{dateBR(e.event_date)}{e.start_time ? ` ${String(e.start_time).slice(0, 5)}` : ""}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Link to="/personal/agenda" className="mt-4 inline-block text-xs text-primary hover:underline">Abrir agenda →</Link>
+        </Panel>
+
+        <Panel title="Resumo financeiro" icon={Wallet}>
+          <p className="text-3xl font-black text-neon">{money(income - expense)}</p>
+          <p className="mt-1 text-sm text-muted-foreground">saldo atual</p>
+          <div className="mt-4 grid grid-cols-2 gap-2 text-center text-xs">
+            <div className="rounded-xl border border-border bg-secondary/30 px-2 py-3">
+              <p className="text-muted-foreground">Receitas</p>
+              <p className="mt-1 font-semibold">{money(income)}</p>
+            </div>
+            <div className="rounded-xl border border-border bg-secondary/30 px-2 py-3">
+              <p className="text-muted-foreground">Despesas</p>
+              <p className="mt-1 font-semibold">{money(expense)}</p>
+            </div>
+          </div>
+          <Link to="/personal/finance" className="mt-4 inline-block text-xs text-primary hover:underline">Ver financeiro →</Link>
+        </Panel>
+
+        <Panel title="Notas recentes" icon={Brain}>
+          {(widgets?.notes.length ?? 0) === 0 ? (
+            <p className="text-sm text-muted-foreground">Nenhuma nota no Segundo Cérebro ainda.</p>
+          ) : (
+            <ul className="space-y-2 text-sm">
+              {widgets?.notes.map((n) => (
+                <li key={n.id} className="rounded-xl border border-border bg-secondary/30 px-3 py-2">
+                  <span className="block truncate font-medium">{n.title}</span>
+                  <span className="text-xs capitalize text-muted-foreground">{n.area}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Link to="/personal/brain" className="mt-4 inline-block text-xs text-primary hover:underline">Abrir Segundo Cérebro →</Link>
         </Panel>
       </div>
     </PersonalShell>

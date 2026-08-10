@@ -14,23 +14,23 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { slug: "dashboard", label: "Dashboard", icon: Home, ready: true },
-  { slug: "agenda", label: "Agenda", icon: CalendarDays },
+  { slug: "agenda", label: "Agenda", icon: CalendarDays, ready: true },
   { slug: "tasks", label: "Tarefas", icon: CheckSquare, ready: true },
   { slug: "missions", label: "Missões", icon: Target, ready: true },
-  { slug: "business", label: "Negócios", icon: Briefcase },
-  { slug: "finance", label: "Financeiro", icon: Wallet },
-  { slug: "shopping", label: "Compras", icon: ShoppingCart },
-  { slug: "documents", label: "Documentos", icon: FolderOpen },
-  { slug: "brain", label: "Segundo Cérebro", icon: Brain },
-  { slug: "library", label: "Biblioteca", icon: Library },
-  { slug: "journal", label: "Diário", icon: BookOpen },
+  { slug: "business", label: "Negócios", icon: Briefcase, ready: true },
+  { slug: "finance", label: "Financeiro", icon: Wallet, ready: true },
+  { slug: "shopping", label: "Compras", icon: ShoppingCart, ready: true },
+  { slug: "documents", label: "Documentos", icon: FolderOpen, ready: true },
+  { slug: "brain", label: "Segundo Cérebro", icon: Brain, ready: true },
+  { slug: "library", label: "Biblioteca", icon: Library, ready: true },
+  { slug: "journal", label: "Diário", icon: BookOpen, ready: true },
   { slug: "cycles", label: "Ciclos", icon: Moon, ready: true },
-  { slug: "practices", label: "Práticas", icon: Flame },
+  { slug: "practices", label: "Práticas", icon: Flame, ready: true },
   { slug: "thelema", label: "Thelema", icon: ScrollText, ready: true },
   { slug: "self", label: "Meu Perfil", icon: UserCircle, ready: true },
   { slug: "map", label: "Meu Mapa", icon: Map, ready: true },
   { slug: "ai", label: "Assistente IA", icon: Bot, ready: true },
-  { slug: "settings", label: "Configurações", icon: Settings },
+  { slug: "settings", label: "Configurações", icon: Settings, ready: true },
 ];
 
 export const MODULE_LABEL: Record<string, string> = Object.fromEntries(

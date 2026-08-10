@@ -14,12 +14,22 @@ import { Route as PersonalIndexRouteImport } from './routes/personal.index'
 import { Route as PersonalAppRouteImport } from './routes/personal._app'
 import { Route as PersonalLoginRouteImport } from './routes/personal.login'
 import { Route as PersonalAppModuleRouteImport } from './routes/personal._app.$module'
+import { Route as PersonalAppAgendaRouteImport } from './routes/personal._app.agenda'
 import { Route as PersonalAppAiRouteImport } from './routes/personal._app.ai'
+import { Route as PersonalAppBrainRouteImport } from './routes/personal._app.brain'
+import { Route as PersonalAppBusinessRouteImport } from './routes/personal._app.business'
 import { Route as PersonalAppCyclesRouteImport } from './routes/personal._app.cycles'
 import { Route as PersonalAppDashboardRouteImport } from './routes/personal._app.dashboard'
+import { Route as PersonalAppDocumentsRouteImport } from './routes/personal._app.documents'
+import { Route as PersonalAppFinanceRouteImport } from './routes/personal._app.finance'
+import { Route as PersonalAppJournalRouteImport } from './routes/personal._app.journal'
+import { Route as PersonalAppLibraryRouteImport } from './routes/personal._app.library'
 import { Route as PersonalAppMapRouteImport } from './routes/personal._app.map'
 import { Route as PersonalAppMissionsRouteImport } from './routes/personal._app.missions'
+import { Route as PersonalAppPracticesRouteImport } from './routes/personal._app.practices'
 import { Route as PersonalAppSelfRouteImport } from './routes/personal._app.self'
+import { Route as PersonalAppSettingsRouteImport } from './routes/personal._app.settings'
+import { Route as PersonalAppShoppingRouteImport } from './routes/personal._app.shopping'
 import { Route as PersonalAppTasksRouteImport } from './routes/personal._app.tasks'
 import { Route as PersonalAppThelemaRouteImport } from './routes/personal._app.thelema'
 import { Route as PersonalAppThelemaIndexRouteImport } from './routes/personal._app.thelema.index'
@@ -50,9 +60,24 @@ const PersonalAppModuleRoute = PersonalAppModuleRouteImport.update({
   path: '/$module',
   getParentRoute: () => PersonalAppRoute,
 } as any)
+const PersonalAppAgendaRoute = PersonalAppAgendaRouteImport.update({
+  id: '/agenda',
+  path: '/agenda',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
 const PersonalAppAiRoute = PersonalAppAiRouteImport.update({
   id: '/ai',
   path: '/ai',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
+const PersonalAppBrainRoute = PersonalAppBrainRouteImport.update({
+  id: '/brain',
+  path: '/brain',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
+const PersonalAppBusinessRoute = PersonalAppBusinessRouteImport.update({
+  id: '/business',
+  path: '/business',
   getParentRoute: () => PersonalAppRoute,
 } as any)
 const PersonalAppCyclesRoute = PersonalAppCyclesRouteImport.update({
@@ -65,6 +90,26 @@ const PersonalAppDashboardRoute = PersonalAppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => PersonalAppRoute,
 } as any)
+const PersonalAppDocumentsRoute = PersonalAppDocumentsRouteImport.update({
+  id: '/documents',
+  path: '/documents',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
+const PersonalAppFinanceRoute = PersonalAppFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
+const PersonalAppJournalRoute = PersonalAppJournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
+const PersonalAppLibraryRoute = PersonalAppLibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
 const PersonalAppMapRoute = PersonalAppMapRouteImport.update({
   id: '/map',
   path: '/map',
@@ -75,9 +120,24 @@ const PersonalAppMissionsRoute = PersonalAppMissionsRouteImport.update({
   path: '/missions',
   getParentRoute: () => PersonalAppRoute,
 } as any)
+const PersonalAppPracticesRoute = PersonalAppPracticesRouteImport.update({
+  id: '/practices',
+  path: '/practices',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
 const PersonalAppSelfRoute = PersonalAppSelfRouteImport.update({
   id: '/self',
   path: '/self',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
+const PersonalAppSettingsRoute = PersonalAppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
+const PersonalAppShoppingRoute = PersonalAppShoppingRouteImport.update({
+  id: '/shopping',
+  path: '/shopping',
   getParentRoute: () => PersonalAppRoute,
 } as any)
 const PersonalAppTasksRoute = PersonalAppTasksRouteImport.update({
@@ -108,12 +168,22 @@ export interface FileRoutesByFullPath {
   '/personal/login': typeof PersonalLoginRoute
   '/personal/': typeof PersonalIndexRoute
   '/personal/$module': typeof PersonalAppModuleRoute
+  '/personal/agenda': typeof PersonalAppAgendaRoute
   '/personal/ai': typeof PersonalAppAiRoute
+  '/personal/brain': typeof PersonalAppBrainRoute
+  '/personal/business': typeof PersonalAppBusinessRoute
   '/personal/cycles': typeof PersonalAppCyclesRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
+  '/personal/documents': typeof PersonalAppDocumentsRoute
+  '/personal/finance': typeof PersonalAppFinanceRoute
+  '/personal/journal': typeof PersonalAppJournalRoute
+  '/personal/library': typeof PersonalAppLibraryRoute
   '/personal/map': typeof PersonalAppMapRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
+  '/personal/practices': typeof PersonalAppPracticesRoute
   '/personal/self': typeof PersonalAppSelfRoute
+  '/personal/settings': typeof PersonalAppSettingsRoute
+  '/personal/shopping': typeof PersonalAppShoppingRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
   '/personal/thelema': typeof PersonalAppThelemaRouteWithChildren
   '/personal/thelema/journal': typeof PersonalAppThelemaJournalRoute
@@ -124,12 +194,22 @@ export interface FileRoutesByTo {
   '/personal': typeof PersonalIndexRoute
   '/personal/login': typeof PersonalLoginRoute
   '/personal/$module': typeof PersonalAppModuleRoute
+  '/personal/agenda': typeof PersonalAppAgendaRoute
   '/personal/ai': typeof PersonalAppAiRoute
+  '/personal/brain': typeof PersonalAppBrainRoute
+  '/personal/business': typeof PersonalAppBusinessRoute
   '/personal/cycles': typeof PersonalAppCyclesRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
+  '/personal/documents': typeof PersonalAppDocumentsRoute
+  '/personal/finance': typeof PersonalAppFinanceRoute
+  '/personal/journal': typeof PersonalAppJournalRoute
+  '/personal/library': typeof PersonalAppLibraryRoute
   '/personal/map': typeof PersonalAppMapRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
+  '/personal/practices': typeof PersonalAppPracticesRoute
   '/personal/self': typeof PersonalAppSelfRoute
+  '/personal/settings': typeof PersonalAppSettingsRoute
+  '/personal/shopping': typeof PersonalAppShoppingRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
   '/personal/thelema/journal': typeof PersonalAppThelemaJournalRoute
   '/personal/thelema': typeof PersonalAppThelemaIndexRoute
@@ -141,12 +221,22 @@ export interface FileRoutesById {
   '/personal/login': typeof PersonalLoginRoute
   '/personal/': typeof PersonalIndexRoute
   '/personal/_app/$module': typeof PersonalAppModuleRoute
+  '/personal/_app/agenda': typeof PersonalAppAgendaRoute
   '/personal/_app/ai': typeof PersonalAppAiRoute
+  '/personal/_app/brain': typeof PersonalAppBrainRoute
+  '/personal/_app/business': typeof PersonalAppBusinessRoute
   '/personal/_app/cycles': typeof PersonalAppCyclesRoute
   '/personal/_app/dashboard': typeof PersonalAppDashboardRoute
+  '/personal/_app/documents': typeof PersonalAppDocumentsRoute
+  '/personal/_app/finance': typeof PersonalAppFinanceRoute
+  '/personal/_app/journal': typeof PersonalAppJournalRoute
+  '/personal/_app/library': typeof PersonalAppLibraryRoute
   '/personal/_app/map': typeof PersonalAppMapRoute
   '/personal/_app/missions': typeof PersonalAppMissionsRoute
+  '/personal/_app/practices': typeof PersonalAppPracticesRoute
   '/personal/_app/self': typeof PersonalAppSelfRoute
+  '/personal/_app/settings': typeof PersonalAppSettingsRoute
+  '/personal/_app/shopping': typeof PersonalAppShoppingRoute
   '/personal/_app/tasks': typeof PersonalAppTasksRoute
   '/personal/_app/thelema': typeof PersonalAppThelemaRouteWithChildren
   '/personal/_app/thelema/journal': typeof PersonalAppThelemaJournalRoute
@@ -160,12 +250,22 @@ export interface FileRouteTypes {
     | '/personal/login'
     | '/personal/'
     | '/personal/$module'
+    | '/personal/agenda'
     | '/personal/ai'
+    | '/personal/brain'
+    | '/personal/business'
     | '/personal/cycles'
     | '/personal/dashboard'
+    | '/personal/documents'
+    | '/personal/finance'
+    | '/personal/journal'
+    | '/personal/library'
     | '/personal/map'
     | '/personal/missions'
+    | '/personal/practices'
     | '/personal/self'
+    | '/personal/settings'
+    | '/personal/shopping'
     | '/personal/tasks'
     | '/personal/thelema'
     | '/personal/thelema/journal'
@@ -176,12 +276,22 @@ export interface FileRouteTypes {
     | '/personal'
     | '/personal/login'
     | '/personal/$module'
+    | '/personal/agenda'
     | '/personal/ai'
+    | '/personal/brain'
+    | '/personal/business'
     | '/personal/cycles'
     | '/personal/dashboard'
+    | '/personal/documents'
+    | '/personal/finance'
+    | '/personal/journal'
+    | '/personal/library'
     | '/personal/map'
     | '/personal/missions'
+    | '/personal/practices'
     | '/personal/self'
+    | '/personal/settings'
+    | '/personal/shopping'
     | '/personal/tasks'
     | '/personal/thelema/journal'
     | '/personal/thelema'
@@ -192,12 +302,22 @@ export interface FileRouteTypes {
     | '/personal/login'
     | '/personal/'
     | '/personal/_app/$module'
+    | '/personal/_app/agenda'
     | '/personal/_app/ai'
+    | '/personal/_app/brain'
+    | '/personal/_app/business'
     | '/personal/_app/cycles'
     | '/personal/_app/dashboard'
+    | '/personal/_app/documents'
+    | '/personal/_app/finance'
+    | '/personal/_app/journal'
+    | '/personal/_app/library'
     | '/personal/_app/map'
     | '/personal/_app/missions'
+    | '/personal/_app/practices'
     | '/personal/_app/self'
+    | '/personal/_app/settings'
+    | '/personal/_app/shopping'
     | '/personal/_app/tasks'
     | '/personal/_app/thelema'
     | '/personal/_app/thelema/journal'
@@ -248,11 +368,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonalAppModuleRouteImport
       parentRoute: typeof PersonalAppRoute
     }
+    '/personal/_app/agenda': {
+      id: '/personal/_app/agenda'
+      path: '/agenda'
+      fullPath: '/personal/agenda'
+      preLoaderRoute: typeof PersonalAppAgendaRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
     '/personal/_app/ai': {
       id: '/personal/_app/ai'
       path: '/ai'
       fullPath: '/personal/ai'
       preLoaderRoute: typeof PersonalAppAiRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
+    '/personal/_app/brain': {
+      id: '/personal/_app/brain'
+      path: '/brain'
+      fullPath: '/personal/brain'
+      preLoaderRoute: typeof PersonalAppBrainRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
+    '/personal/_app/business': {
+      id: '/personal/_app/business'
+      path: '/business'
+      fullPath: '/personal/business'
+      preLoaderRoute: typeof PersonalAppBusinessRouteImport
       parentRoute: typeof PersonalAppRoute
     }
     '/personal/_app/cycles': {
@@ -269,6 +410,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonalAppDashboardRouteImport
       parentRoute: typeof PersonalAppRoute
     }
+    '/personal/_app/documents': {
+      id: '/personal/_app/documents'
+      path: '/documents'
+      fullPath: '/personal/documents'
+      preLoaderRoute: typeof PersonalAppDocumentsRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
+    '/personal/_app/finance': {
+      id: '/personal/_app/finance'
+      path: '/finance'
+      fullPath: '/personal/finance'
+      preLoaderRoute: typeof PersonalAppFinanceRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
+    '/personal/_app/journal': {
+      id: '/personal/_app/journal'
+      path: '/journal'
+      fullPath: '/personal/journal'
+      preLoaderRoute: typeof PersonalAppJournalRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
+    '/personal/_app/library': {
+      id: '/personal/_app/library'
+      path: '/library'
+      fullPath: '/personal/library'
+      preLoaderRoute: typeof PersonalAppLibraryRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
     '/personal/_app/map': {
       id: '/personal/_app/map'
       path: '/map'
@@ -283,11 +452,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonalAppMissionsRouteImport
       parentRoute: typeof PersonalAppRoute
     }
+    '/personal/_app/practices': {
+      id: '/personal/_app/practices'
+      path: '/practices'
+      fullPath: '/personal/practices'
+      preLoaderRoute: typeof PersonalAppPracticesRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
     '/personal/_app/self': {
       id: '/personal/_app/self'
       path: '/self'
       fullPath: '/personal/self'
       preLoaderRoute: typeof PersonalAppSelfRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
+    '/personal/_app/settings': {
+      id: '/personal/_app/settings'
+      path: '/settings'
+      fullPath: '/personal/settings'
+      preLoaderRoute: typeof PersonalAppSettingsRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
+    '/personal/_app/shopping': {
+      id: '/personal/_app/shopping'
+      path: '/shopping'
+      fullPath: '/personal/shopping'
+      preLoaderRoute: typeof PersonalAppShoppingRouteImport
       parentRoute: typeof PersonalAppRoute
     }
     '/personal/_app/tasks': {
@@ -336,24 +526,44 @@ const PersonalAppThelemaRouteWithChildren =
 
 interface PersonalAppRouteChildren {
   PersonalAppModuleRoute: typeof PersonalAppModuleRoute
+  PersonalAppAgendaRoute: typeof PersonalAppAgendaRoute
   PersonalAppAiRoute: typeof PersonalAppAiRoute
+  PersonalAppBrainRoute: typeof PersonalAppBrainRoute
+  PersonalAppBusinessRoute: typeof PersonalAppBusinessRoute
   PersonalAppCyclesRoute: typeof PersonalAppCyclesRoute
   PersonalAppDashboardRoute: typeof PersonalAppDashboardRoute
+  PersonalAppDocumentsRoute: typeof PersonalAppDocumentsRoute
+  PersonalAppFinanceRoute: typeof PersonalAppFinanceRoute
+  PersonalAppJournalRoute: typeof PersonalAppJournalRoute
+  PersonalAppLibraryRoute: typeof PersonalAppLibraryRoute
   PersonalAppMapRoute: typeof PersonalAppMapRoute
   PersonalAppMissionsRoute: typeof PersonalAppMissionsRoute
+  PersonalAppPracticesRoute: typeof PersonalAppPracticesRoute
   PersonalAppSelfRoute: typeof PersonalAppSelfRoute
+  PersonalAppSettingsRoute: typeof PersonalAppSettingsRoute
+  PersonalAppShoppingRoute: typeof PersonalAppShoppingRoute
   PersonalAppTasksRoute: typeof PersonalAppTasksRoute
   PersonalAppThelemaRoute: typeof PersonalAppThelemaRouteWithChildren
 }
 
 const PersonalAppRouteChildren: PersonalAppRouteChildren = {
   PersonalAppModuleRoute: PersonalAppModuleRoute,
+  PersonalAppAgendaRoute: PersonalAppAgendaRoute,
   PersonalAppAiRoute: PersonalAppAiRoute,
+  PersonalAppBrainRoute: PersonalAppBrainRoute,
+  PersonalAppBusinessRoute: PersonalAppBusinessRoute,
   PersonalAppCyclesRoute: PersonalAppCyclesRoute,
   PersonalAppDashboardRoute: PersonalAppDashboardRoute,
+  PersonalAppDocumentsRoute: PersonalAppDocumentsRoute,
+  PersonalAppFinanceRoute: PersonalAppFinanceRoute,
+  PersonalAppJournalRoute: PersonalAppJournalRoute,
+  PersonalAppLibraryRoute: PersonalAppLibraryRoute,
   PersonalAppMapRoute: PersonalAppMapRoute,
   PersonalAppMissionsRoute: PersonalAppMissionsRoute,
+  PersonalAppPracticesRoute: PersonalAppPracticesRoute,
   PersonalAppSelfRoute: PersonalAppSelfRoute,
+  PersonalAppSettingsRoute: PersonalAppSettingsRoute,
+  PersonalAppShoppingRoute: PersonalAppShoppingRoute,
   PersonalAppTasksRoute: PersonalAppTasksRoute,
   PersonalAppThelemaRoute: PersonalAppThelemaRouteWithChildren,
 }
