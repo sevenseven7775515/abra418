@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PersonalShell } from "@/components/personal/PersonalShell";
+import { JournalImport } from "@/components/personal/JournalImport";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,7 +28,7 @@ const MOODS = ["otimo", "bom", "neutro", "cansado", "dificil"];
 type Entry = {
   id: string; entry_date: string; title: string | null; content: string | null;
   mood: string | null; energy: number | null; gratitude: string | null;
-  learnings: string | null; highlights: string | null;
+  learnings: string | null; highlights: string | null; source_file: string | null;
 };
 
 const emptyForm = {
@@ -39,6 +40,7 @@ function JournalPage() {
   const qc = useQueryClient();
   const userId = useUserId();
   const [open, setOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [search, setSearch] = useState("");
   const [from, setFrom] = useState("");
@@ -101,8 +103,19 @@ function JournalPage() {
     <PersonalShell
       title="Diário"
       subtitle="Registro diário com humor, energia e aprendizados."
-      actions={<Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Entrada</Button>}
+      actions={
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => setImportOpen((v) => !v)} className="font-semibold">
+            <Upload className="h-4 w-4" /> Importar Diário Histórico
+          </Button>
+          <Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Entrada</Button>
+        </div>
+      }
     >
+      {importOpen && (
+        <JournalImport userId={userId} onDone={invalidate} onClose={() => setImportOpen(false)} />
+      )}
+
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
         <Stat label="Entradas" value={entries.length} />
         <Stat label="Energia média" value={avgEnergy} hint="escala 0 a 10" />
@@ -155,6 +168,7 @@ function JournalPage() {
                 <p className="font-semibold">{e.title || dateBR(e.entry_date)}</p>
                 <p className="text-xs capitalize text-muted-foreground">
                   {dateBR(e.entry_date)}{e.mood ? ` · humor ${e.mood}` : ""}{e.energy !== null ? ` · energia ${e.energy}/10` : ""}
+                  {e.source_file ? ` · ${e.source_file}` : ""}
                 </p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => remove.mutate(e.id)}><Trash2 className="h-4 w-4" /></Button>
