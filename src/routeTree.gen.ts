@@ -16,11 +16,13 @@ import { Route as PersonalLoginRouteImport } from './routes/personal.login'
 import { Route as PersonalAppModuleRouteImport } from './routes/personal._app.$module'
 import { Route as PersonalAppAgendaRouteImport } from './routes/personal._app.agenda'
 import { Route as PersonalAppAiRouteImport } from './routes/personal._app.ai'
+import { Route as PersonalAppBrainRouteImport } from './routes/personal._app.brain'
 import { Route as PersonalAppBusinessRouteImport } from './routes/personal._app.business'
 import { Route as PersonalAppCyclesRouteImport } from './routes/personal._app.cycles'
 import { Route as PersonalAppDashboardRouteImport } from './routes/personal._app.dashboard'
 import { Route as PersonalAppFinanceRouteImport } from './routes/personal._app.finance'
 import { Route as PersonalAppJournalRouteImport } from './routes/personal._app.journal'
+import { Route as PersonalAppLibraryRouteImport } from './routes/personal._app.library'
 import { Route as PersonalAppMapRouteImport } from './routes/personal._app.map'
 import { Route as PersonalAppMissionsRouteImport } from './routes/personal._app.missions'
 import { Route as PersonalAppPracticesRouteImport } from './routes/personal._app.practices'
@@ -66,6 +68,11 @@ const PersonalAppAiRoute = PersonalAppAiRouteImport.update({
   path: '/ai',
   getParentRoute: () => PersonalAppRoute,
 } as any)
+const PersonalAppBrainRoute = PersonalAppBrainRouteImport.update({
+  id: '/brain',
+  path: '/brain',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
 const PersonalAppBusinessRoute = PersonalAppBusinessRouteImport.update({
   id: '/business',
   path: '/business',
@@ -89,6 +96,11 @@ const PersonalAppFinanceRoute = PersonalAppFinanceRouteImport.update({
 const PersonalAppJournalRoute = PersonalAppJournalRouteImport.update({
   id: '/journal',
   path: '/journal',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
+const PersonalAppLibraryRoute = PersonalAppLibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
   getParentRoute: () => PersonalAppRoute,
 } as any)
 const PersonalAppMapRoute = PersonalAppMapRouteImport.update({
@@ -146,11 +158,13 @@ export interface FileRoutesByFullPath {
   '/personal/$module': typeof PersonalAppModuleRoute
   '/personal/agenda': typeof PersonalAppAgendaRoute
   '/personal/ai': typeof PersonalAppAiRoute
+  '/personal/brain': typeof PersonalAppBrainRoute
   '/personal/business': typeof PersonalAppBusinessRoute
   '/personal/cycles': typeof PersonalAppCyclesRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
   '/personal/finance': typeof PersonalAppFinanceRoute
   '/personal/journal': typeof PersonalAppJournalRoute
+  '/personal/library': typeof PersonalAppLibraryRoute
   '/personal/map': typeof PersonalAppMapRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
   '/personal/practices': typeof PersonalAppPracticesRoute
@@ -168,11 +182,13 @@ export interface FileRoutesByTo {
   '/personal/$module': typeof PersonalAppModuleRoute
   '/personal/agenda': typeof PersonalAppAgendaRoute
   '/personal/ai': typeof PersonalAppAiRoute
+  '/personal/brain': typeof PersonalAppBrainRoute
   '/personal/business': typeof PersonalAppBusinessRoute
   '/personal/cycles': typeof PersonalAppCyclesRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
   '/personal/finance': typeof PersonalAppFinanceRoute
   '/personal/journal': typeof PersonalAppJournalRoute
+  '/personal/library': typeof PersonalAppLibraryRoute
   '/personal/map': typeof PersonalAppMapRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
   '/personal/practices': typeof PersonalAppPracticesRoute
@@ -191,11 +207,13 @@ export interface FileRoutesById {
   '/personal/_app/$module': typeof PersonalAppModuleRoute
   '/personal/_app/agenda': typeof PersonalAppAgendaRoute
   '/personal/_app/ai': typeof PersonalAppAiRoute
+  '/personal/_app/brain': typeof PersonalAppBrainRoute
   '/personal/_app/business': typeof PersonalAppBusinessRoute
   '/personal/_app/cycles': typeof PersonalAppCyclesRoute
   '/personal/_app/dashboard': typeof PersonalAppDashboardRoute
   '/personal/_app/finance': typeof PersonalAppFinanceRoute
   '/personal/_app/journal': typeof PersonalAppJournalRoute
+  '/personal/_app/library': typeof PersonalAppLibraryRoute
   '/personal/_app/map': typeof PersonalAppMapRoute
   '/personal/_app/missions': typeof PersonalAppMissionsRoute
   '/personal/_app/practices': typeof PersonalAppPracticesRoute
@@ -216,11 +234,13 @@ export interface FileRouteTypes {
     | '/personal/$module'
     | '/personal/agenda'
     | '/personal/ai'
+    | '/personal/brain'
     | '/personal/business'
     | '/personal/cycles'
     | '/personal/dashboard'
     | '/personal/finance'
     | '/personal/journal'
+    | '/personal/library'
     | '/personal/map'
     | '/personal/missions'
     | '/personal/practices'
@@ -238,11 +258,13 @@ export interface FileRouteTypes {
     | '/personal/$module'
     | '/personal/agenda'
     | '/personal/ai'
+    | '/personal/brain'
     | '/personal/business'
     | '/personal/cycles'
     | '/personal/dashboard'
     | '/personal/finance'
     | '/personal/journal'
+    | '/personal/library'
     | '/personal/map'
     | '/personal/missions'
     | '/personal/practices'
@@ -260,11 +282,13 @@ export interface FileRouteTypes {
     | '/personal/_app/$module'
     | '/personal/_app/agenda'
     | '/personal/_app/ai'
+    | '/personal/_app/brain'
     | '/personal/_app/business'
     | '/personal/_app/cycles'
     | '/personal/_app/dashboard'
     | '/personal/_app/finance'
     | '/personal/_app/journal'
+    | '/personal/_app/library'
     | '/personal/_app/map'
     | '/personal/_app/missions'
     | '/personal/_app/practices'
@@ -334,6 +358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonalAppAiRouteImport
       parentRoute: typeof PersonalAppRoute
     }
+    '/personal/_app/brain': {
+      id: '/personal/_app/brain'
+      path: '/brain'
+      fullPath: '/personal/brain'
+      preLoaderRoute: typeof PersonalAppBrainRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
     '/personal/_app/business': {
       id: '/personal/_app/business'
       path: '/business'
@@ -367,6 +398,13 @@ declare module '@tanstack/react-router' {
       path: '/journal'
       fullPath: '/personal/journal'
       preLoaderRoute: typeof PersonalAppJournalRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
+    '/personal/_app/library': {
+      id: '/personal/_app/library'
+      path: '/library'
+      fullPath: '/personal/library'
+      preLoaderRoute: typeof PersonalAppLibraryRouteImport
       parentRoute: typeof PersonalAppRoute
     }
     '/personal/_app/map': {
@@ -452,11 +490,13 @@ interface PersonalAppRouteChildren {
   PersonalAppModuleRoute: typeof PersonalAppModuleRoute
   PersonalAppAgendaRoute: typeof PersonalAppAgendaRoute
   PersonalAppAiRoute: typeof PersonalAppAiRoute
+  PersonalAppBrainRoute: typeof PersonalAppBrainRoute
   PersonalAppBusinessRoute: typeof PersonalAppBusinessRoute
   PersonalAppCyclesRoute: typeof PersonalAppCyclesRoute
   PersonalAppDashboardRoute: typeof PersonalAppDashboardRoute
   PersonalAppFinanceRoute: typeof PersonalAppFinanceRoute
   PersonalAppJournalRoute: typeof PersonalAppJournalRoute
+  PersonalAppLibraryRoute: typeof PersonalAppLibraryRoute
   PersonalAppMapRoute: typeof PersonalAppMapRoute
   PersonalAppMissionsRoute: typeof PersonalAppMissionsRoute
   PersonalAppPracticesRoute: typeof PersonalAppPracticesRoute
@@ -470,11 +510,13 @@ const PersonalAppRouteChildren: PersonalAppRouteChildren = {
   PersonalAppModuleRoute: PersonalAppModuleRoute,
   PersonalAppAgendaRoute: PersonalAppAgendaRoute,
   PersonalAppAiRoute: PersonalAppAiRoute,
+  PersonalAppBrainRoute: PersonalAppBrainRoute,
   PersonalAppBusinessRoute: PersonalAppBusinessRoute,
   PersonalAppCyclesRoute: PersonalAppCyclesRoute,
   PersonalAppDashboardRoute: PersonalAppDashboardRoute,
   PersonalAppFinanceRoute: PersonalAppFinanceRoute,
   PersonalAppJournalRoute: PersonalAppJournalRoute,
+  PersonalAppLibraryRoute: PersonalAppLibraryRoute,
   PersonalAppMapRoute: PersonalAppMapRoute,
   PersonalAppMissionsRoute: PersonalAppMissionsRoute,
   PersonalAppPracticesRoute: PersonalAppPracticesRoute,
