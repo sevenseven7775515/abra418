@@ -461,8 +461,11 @@ export type Database = {
           gratitude: string | null
           highlights: string | null
           id: string
+          imported: boolean
           learnings: string | null
           mood: string | null
+          processed: boolean
+          source_file: string | null
           title: string | null
           updated_at: string
           user_id: string
@@ -475,8 +478,11 @@ export type Database = {
           gratitude?: string | null
           highlights?: string | null
           id?: string
+          imported?: boolean
           learnings?: string | null
           mood?: string | null
+          processed?: boolean
+          source_file?: string | null
           title?: string | null
           updated_at?: string
           user_id: string
@@ -489,13 +495,107 @@ export type Database = {
           gratitude?: string | null
           highlights?: string | null
           id?: string
+          imported?: boolean
           learnings?: string | null
           mood?: string | null
+          processed?: boolean
+          source_file?: string | null
           title?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      journal_events: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          event_time: string | null
+          id: string
+          journal_id: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description: string
+          event_time?: string | null
+          id?: string
+          journal_id: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          event_time?: string | null
+          id?: string
+          journal_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journal_events_journal_id_fkey"
+            columns: ["journal_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journal_insights: {
+        Row: {
+          books: string[]
+          created_at: string
+          energy: number | null
+          habits: string[]
+          id: string
+          journal_id: string
+          learnings: string | null
+          mood: string | null
+          patterns: string | null
+          practices: string[]
+          tags: string[]
+          user_id: string
+        }
+        Insert: {
+          books?: string[]
+          created_at?: string
+          energy?: number | null
+          habits?: string[]
+          id?: string
+          journal_id: string
+          learnings?: string | null
+          mood?: string | null
+          patterns?: string | null
+          practices?: string[]
+          tags?: string[]
+          user_id: string
+        }
+        Update: {
+          books?: string[]
+          created_at?: string
+          energy?: number | null
+          habits?: string[]
+          id?: string
+          journal_id?: string
+          learnings?: string | null
+          mood?: string | null
+          patterns?: string | null
+          practices?: string[]
+          tags?: string[]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journal_insights_journal_id_fkey"
+            columns: ["journal_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       life_goals: {
         Row: {
