@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PersonalIndexRouteImport } from './routes/personal.index'
 import { Route as PersonalAppRouteImport } from './routes/personal._app'
 import { Route as PersonalLoginRouteImport } from './routes/personal.login'
+import { Route as PersonalResetPasswordRouteImport } from './routes/personal.reset-password'
 import { Route as PersonalAppModuleRouteImport } from './routes/personal._app.$module'
 import { Route as PersonalAppDashboardRouteImport } from './routes/personal._app.dashboard'
 import { Route as PersonalAppMissionsRouteImport } from './routes/personal._app.missions'
@@ -36,6 +37,11 @@ const PersonalAppRoute = PersonalAppRouteImport.update({
 const PersonalLoginRoute = PersonalLoginRouteImport.update({
   id: '/personal/login',
   path: '/personal/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PersonalResetPasswordRoute = PersonalResetPasswordRouteImport.update({
+  id: '/personal/reset-password',
+  path: '/personal/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PersonalAppModuleRoute = PersonalAppModuleRouteImport.update({
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/personal': typeof PersonalAppRouteWithChildren
   '/personal/login': typeof PersonalLoginRoute
+  '/personal/reset-password': typeof PersonalResetPasswordRoute
   '/personal/': typeof PersonalIndexRoute
   '/personal/$module': typeof PersonalAppModuleRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/personal': typeof PersonalIndexRoute
   '/personal/login': typeof PersonalLoginRoute
+  '/personal/reset-password': typeof PersonalResetPasswordRoute
   '/personal/$module': typeof PersonalAppModuleRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/personal/_app': typeof PersonalAppRouteWithChildren
   '/personal/login': typeof PersonalLoginRoute
+  '/personal/reset-password': typeof PersonalResetPasswordRoute
   '/personal/': typeof PersonalIndexRoute
   '/personal/_app/$module': typeof PersonalAppModuleRoute
   '/personal/_app/dashboard': typeof PersonalAppDashboardRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
     | '/'
     | '/personal'
     | '/personal/login'
+    | '/personal/reset-password'
     | '/personal/'
     | '/personal/$module'
     | '/personal/dashboard'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
     | '/'
     | '/personal'
     | '/personal/login'
+    | '/personal/reset-password'
     | '/personal/$module'
     | '/personal/dashboard'
     | '/personal/missions'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '/'
     | '/personal/_app'
     | '/personal/login'
+    | '/personal/reset-password'
     | '/personal/'
     | '/personal/_app/$module'
     | '/personal/_app/dashboard'
@@ -125,6 +137,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   PersonalAppRoute: typeof PersonalAppRouteWithChildren
   PersonalLoginRoute: typeof PersonalLoginRoute
+  PersonalResetPasswordRoute: typeof PersonalResetPasswordRoute
   PersonalIndexRoute: typeof PersonalIndexRoute
 }
 
@@ -156,6 +169,13 @@ declare module '@tanstack/react-router' {
       path: '/personal/login'
       fullPath: '/personal/login'
       preLoaderRoute: typeof PersonalLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/personal/reset-password': {
+      id: '/personal/reset-password'
+      path: '/personal/reset-password'
+      fullPath: '/personal/reset-password'
+      preLoaderRoute: typeof PersonalResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/personal/_app/$module': {
@@ -211,8 +231,19 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PersonalAppRoute: PersonalAppRouteWithChildren,
   PersonalLoginRoute: PersonalLoginRoute,
+  PersonalResetPasswordRoute: PersonalResetPasswordRoute,
   PersonalIndexRoute: PersonalIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
