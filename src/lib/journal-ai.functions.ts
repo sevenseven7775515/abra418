@@ -65,10 +65,14 @@ export const processJournalEntries = createServerFn({ method: "POST" })
 
     const parsed = safeJson(result.text);
 
-    const events: Record<string, unknown>[] = [];
-    const insights: Record<string, unknown>[] = [];
+    const events: { user_id: string; journal_id: string; event_time: string | null; category: string; description: string }[] = [];
+    const insights: {
+      user_id: string; journal_id: string; mood: string | null; energy: number | null;
+      habits: string[]; practices: string[]; learnings: string | null; tags: string[];
+      patterns: string | null; books: string[];
+    }[] = [];
     const practiceNames = new Set<string>();
-    const notes: Record<string, unknown>[] = [];
+    const notes: { user_id: string; title: string; content: string; area: string; tags: string[] }[] = [];
     const books: { titulo: string; autor: string | null }[] = [];
 
     for (const e of entries) {
@@ -107,9 +111,9 @@ export const processJournalEntries = createServerFn({ method: "POST" })
       }
       // mantém a entrada coerente com a análise
       await supabase.from("journal_entries").update({
-        mood: a.humor ?? undefined,
-        energy: typeof a.energia === "number" ? Math.round(a.energia) : undefined,
-        learnings: a.aprendizados ?? undefined,
+        mood: a.humor ?? null,
+        energy: typeof a.energia === "number" ? Math.round(a.energia) : null,
+        learnings: a.aprendizados ?? null,
         processed: true,
       }).eq("id", e.id);
     }

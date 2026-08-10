@@ -41,7 +41,8 @@ export function detectDate(text: string): string | null {
     .toLowerCase()
     .match(/\b(\d{1,2})\s*(?:de\s*)?([a-zçã]{3,9})\.?\s*(?:de\s*)?((?:19|20)\d{2})\b/);
   if (ext) {
-    const m = MONTHS[ext[2]] ?? MONTHS[ext[2].slice(0, 3)];
+    const key = ext[2] ?? "";
+    const m = MONTHS[key] ?? MONTHS[key.slice(0, 3)];
     if (m) {
       const r = valid(Number(ext[3]), m, Number(ext[1]));
       if (r) return r;
@@ -77,7 +78,9 @@ export async function parseJournalFile(file: File): Promise<ParsedFile> {
   let raw = "";
 
   if (ext === "docx") {
-    const mammoth = await import("mammoth/mammoth.browser");
+    const mammoth = (await import("mammoth/mammoth.browser")) as unknown as {
+      extractRawText: (opts: { arrayBuffer: ArrayBuffer }) => Promise<{ value: string }>;
+    };
     const buf = await file.arrayBuffer();
     const res = await mammoth.extractRawText({ arrayBuffer: buf });
     raw = res.value;
