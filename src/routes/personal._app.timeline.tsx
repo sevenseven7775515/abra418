@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { ChevronLeft, Sparkles } from "lucide-react";
+import { ChevronLeft, Search, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PersonalShell } from "@/components/personal/PersonalShell";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Empty, Stat, dateBR } from "@/components/personal/kit";
 
 export const Route = createFileRoute("/personal/_app/timeline")({
@@ -28,24 +29,31 @@ type Entry = {
 };
 type Ev = { journal_id: string; category: string; event_time: string | null; description: string };
 type Ins = { journal_id: string; practices: string[]; tags: string[]; patterns: string | null };
+type TEv = { journal_id: string | null; event_date: string; event_time: string | null; description: string; category: string; source_file: string | null };
+type PHist = { journal_id: string | null; practice_date: string; practice_time: string | null; name: string; category: string; description: string | null };
 
 function TimelinePage() {
   const [year, setYear] = useState<number | null>(null);
   const [month, setMonth] = useState<number | null>(null);
   const [day, setDay] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   const { data } = useQuery({
     queryKey: ["timeline"],
     queryFn: async () => {
-      const [entries, events, insights] = await Promise.all([
+      const [entries, events, insights, timeline, history] = await Promise.all([
         supabase.from("journal_entries").select("id, entry_date, title, content, mood, energy, learnings, highlights").order("entry_date", { ascending: false }),
         supabase.from("journal_events").select("journal_id, category, event_time, description"),
         supabase.from("journal_insights").select("journal_id, practices, tags, patterns"),
+        supabase.from("timeline_events").select("journal_id, event_date, event_time, description, category, source_file").order("event_date", { ascending: false }).order("event_time", { ascending: true }),
+        supabase.from("practice_history").select("journal_id, practice_date, practice_time, name, category, description").order("practice_date", { ascending: false }),
       ]);
       return {
         entries: (entries.data ?? []) as Entry[],
         events: (events.data ?? []) as Ev[],
         insights: (insights.data ?? []) as Ins[],
+        timeline: (timeline.data ?? []) as TEv[],
+        history: (history.data ?? []) as PHist[],
       };
     },
   });
@@ -53,6 +61,16 @@ function TimelinePage() {
   const entries = data?.entries ?? [];
   const events = data?.events ?? [];
   const insights = data?.insights ?? [];
+  const timeline = data?.timeline ?? [];
+  const history = data?.history ?? [];
+
+  const term = search.trim().toLowerCase();
+  const hits = term.length >= 2
+    ? {
+        events: timeline.filter((t) => `${t.description} ${t.category}`.toLowerCase().includes(term)).slice(0, 60),
+        practices: history.filter((p) => `${p.name} ${p.description ?? ""}`.toLowerCase().includes(term)).slice(0, 60),
+      }
+    : null;
 
   const byYear = new Map<number, Entry[]>();
   for (const e of entries) {
@@ -87,7 +105,36 @@ function TimelinePage() {
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
         <Stat label="Registros" value={entries.length} />
         <Stat label="Anos cobertos" value={years.length} />
-        <Stat label="Acontecimentos" value={events.length} />
+        <Stat label="Acontecimentos" value={timeline.length + events.length} />
+      </div>
+
+      <div className="panel mb-6 p-5">
+        <p className="mb-2 flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
+          <Search className="h-3 w-3" /> Busca inteligente no histórico
+        </p>
+        <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder='ex.: pranayama, Liber LXV, meditação, cliente' />
+        {hits && (
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <p className="text-xs uppercase tracking-wide text-primary">Acontecimentos ({hits.events.length})</p>
+              <ul className="mt-2 max-h-64 space-y-1 overflow-auto text-sm">
+                {hits.events.map((t, i) => (
+                  <li key={i}><span className="text-primary">{dateBR(t.event_date)}{t.event_time ? ` ${t.event_time}` : ""}</span> — {t.description}</li>
+                ))}
+                {hits.events.length === 0 && <li className="text-muted-foreground">Nada encontrado.</li>}
+              </ul>
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wide text-primary">Práticas ({hits.practices.length})</p>
+              <ul className="mt-2 max-h-64 space-y-1 overflow-auto text-sm">
+                {hits.practices.map((p, i) => (
+                  <li key={i}><span className="text-primary">{dateBR(p.practice_date)}{p.practice_time ? ` ${p.practice_time}` : ""}</span> — {p.name}</li>
+                ))}
+                {hits.practices.length === 0 && <li className="text-muted-foreground">Nada encontrado.</li>}
+              </ul>
+            </div>
+          </div>
+        )}
       </div>
 
       {entries.length === 0 && <Empty>Nenhum registro ainda. Importe seu diário histórico para montar a linha do tempo.</Empty>}
@@ -147,14 +194,24 @@ function TimelinePage() {
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">Acontecimentos</p>
               <ul className="mt-2 space-y-1 text-sm">
+                {timeline.filter((v) => v.journal_id === dayEntry.id).map((v, i) => (
+                  <li key={`t${i}`}><span className="text-primary">{v.event_time ?? v.category}</span> — {v.description}</li>
+                ))}
                 {events.filter((v) => v.journal_id === dayEntry.id).map((v, i) => (
                   <li key={i}><span className="text-primary">{v.event_time ?? v.category}</span> — {v.description}</li>
                 ))}
-                {events.every((v) => v.journal_id !== dayEntry.id) && <li className="text-muted-foreground">Sem acontecimentos extraídos.</li>}
+                {events.every((v) => v.journal_id !== dayEntry.id) && timeline.every((v) => v.journal_id !== dayEntry.id) && (
+                  <li className="text-muted-foreground">Sem acontecimentos extraídos.</li>
+                )}
               </ul>
             </div>
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">Práticas e padrões</p>
+              <ul className="mt-2 space-y-1 text-sm">
+                {history.filter((v) => v.journal_id === dayEntry.id).map((v, i) => (
+                  <li key={`p${i}`}><Sparkles className="mr-1 inline h-3 w-3 text-primary" />{v.practice_time ? `${v.practice_time} · ` : ""}{v.name}</li>
+                ))}
+              </ul>
               {insights.filter((v) => v.journal_id === dayEntry.id).map((v, i) => (
                 <div key={i} className="mt-2 space-y-2 text-sm">
                   {v.practices.length > 0 && <p><Sparkles className="mr-1 inline h-3 w-3 text-primary" />{v.practices.join(", ")}</p>}

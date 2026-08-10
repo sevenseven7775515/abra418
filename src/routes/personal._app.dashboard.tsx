@@ -105,6 +105,28 @@ function DashboardPage() {
     },
   });
 
+  const { data: base } = useQuery({
+    queryKey: ["dashboard-history-base"],
+    queryFn: async () => {
+      const [days, events, hist, studyEvents, projects] = await Promise.all([
+        supabase.from("journal_entries").select("id", { count: "exact", head: true }),
+        supabase.from("timeline_events").select("id", { count: "exact", head: true }),
+        supabase.from("practice_history").select("name"),
+        supabase.from("timeline_events").select("id", { count: "exact", head: true }).eq("category", "estudos"),
+        supabase.from("timeline_events").select("id", { count: "exact", head: true }).eq("category", "profissional"),
+      ]);
+      const names = new Set((hist.data ?? []).map((h) => h.name));
+      return {
+        days: days.count ?? 0,
+        events: events.count ?? 0,
+        practices: (hist.data ?? []).length,
+        habits: names.size,
+        studies: studyEvents.count ?? 0,
+        projects: projects.count ?? 0,
+      };
+    },
+  });
+
   const { data: state } = useQuery({
     queryKey: ["dashboard-state"],
     queryFn: async () => {
@@ -189,6 +211,25 @@ function DashboardPage() {
             {phase.phase}
           </p>
           <p className="mt-2 text-sm text-muted-foreground">{phase.summary}</p>
+        </div>
+      </section>
+
+      <section className="panel mb-4 p-5">
+        <p className="text-xs uppercase tracking-wide text-muted-foreground">Base histórica</p>
+        <div className="mt-3 grid grid-cols-2 gap-2 text-center text-[11px] text-muted-foreground sm:grid-cols-3 lg:grid-cols-6">
+          {[
+            ["Dias registrados", base?.days ?? 0],
+            ["Acontecimentos", base?.events ?? 0],
+            ["Práticas realizadas", base?.practices ?? 0],
+            ["Hábitos identificados", base?.habits ?? 0],
+            ["Registros de estudo", base?.studies ?? 0],
+            ["Registros profissionais", base?.projects ?? 0],
+          ].map(([label, value]) => (
+            <div key={String(label)} className="rounded-xl border border-border bg-secondary/40 px-2 py-3">
+              <p className="text-xl font-black text-foreground">{value as number}</p>
+              <p className="mt-0.5">{label as string}</p>
+            </div>
+          ))}
         </div>
       </section>
 

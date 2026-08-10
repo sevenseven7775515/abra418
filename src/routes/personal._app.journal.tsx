@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, Trash2, Upload } from "lucide-react";
+import { Plus, Trash2, Upload, Wand2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PersonalShell } from "@/components/personal/PersonalShell";
 import { JournalImport } from "@/components/personal/JournalImport";
+import { JournalReorg } from "@/components/personal/JournalReorg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,6 +30,8 @@ type Entry = {
   id: string; entry_date: string; title: string | null; content: string | null;
   mood: string | null; energy: number | null; gratitude: string | null;
   learnings: string | null; highlights: string | null; source_file: string | null;
+  summary: string | null; main_activities: string | null; achievements: string | null;
+  pending: string | null; insights: string | null; reorganized: boolean | null;
 };
 
 const emptyForm = {
@@ -41,6 +44,7 @@ function JournalPage() {
   const userId = useUserId();
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [reorgOpen, setReorgOpen] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [search, setSearch] = useState("");
   const [from, setFrom] = useState("");
@@ -58,6 +62,7 @@ function JournalPage() {
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["journal-entries"] });
     qc.invalidateQueries({ queryKey: ["dashboard-widgets"] });
+    qc.invalidateQueries({ queryKey: ["timeline"] });
   };
 
   const create = useMutation({
@@ -91,7 +96,7 @@ function JournalPage() {
     if (from && e.entry_date < from) return false;
     if (to && e.entry_date > to) return false;
     if (!term) return true;
-    return [e.title, e.content, e.gratitude, e.learnings, e.highlights, e.mood]
+    return [e.title, e.content, e.gratitude, e.learnings, e.highlights, e.mood, e.summary, e.main_activities, e.insights, e.source_file]
       .some((v) => (v ?? "").toLowerCase().includes(term));
   });
 
@@ -105,6 +110,9 @@ function JournalPage() {
       subtitle="Registro diário com humor, energia e aprendizados."
       actions={
         <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => setReorgOpen((v) => !v)} className="font-semibold">
+            <Wand2 className="h-4 w-4" /> Reorganizar histórico
+          </Button>
           <Button variant="secondary" onClick={() => setImportOpen((v) => !v)} className="font-semibold">
             <Upload className="h-4 w-4" /> Importar Diário Histórico
           </Button>
@@ -112,6 +120,7 @@ function JournalPage() {
         </div>
       }
     >
+      {reorgOpen && <JournalReorg onDone={invalidate} onClose={() => setReorgOpen(false)} />}
       {importOpen && (
         <JournalImport userId={userId} onDone={invalidate} onClose={() => setImportOpen(false)} />
       )}
@@ -178,6 +187,12 @@ function JournalPage() {
               {e.gratitude && <p><span className="text-primary">Gratidão:</span> {e.gratitude}</p>}
               {e.learnings && <p><span className="text-primary">Aprendizados:</span> {e.learnings}</p>}
               {e.highlights && <p><span className="text-primary">Acontecimentos:</span> {e.highlights}</p>}
+            </div>
+            {e.summary && <p className="mt-3 rounded-xl border border-border bg-muted/20 p-3 text-sm"><span className="text-primary">Resumo do dia:</span> {e.summary}</p>}
+            <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
+              {e.achievements && <p><span className="text-primary">Conquistas:</span> {e.achievements}</p>}
+              {e.pending && <p><span className="text-primary">Pendências:</span> {e.pending}</p>}
+              {e.insights && <p><span className="text-primary">Insights:</span> {e.insights}</p>}
             </div>
           </article>
         ))}
