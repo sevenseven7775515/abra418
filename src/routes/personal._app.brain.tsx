@@ -23,7 +23,7 @@ export const Route = createFileRoute("/personal/_app/brain")({
 });
 
 const AREAS = ["todos", "ideias", "estudos", "projetos", "insights"] as const;
-type Note = { id: string; title: string; content: string | null; area: string; tags: string[] | null; links: string[] | null };
+type Note = { id: string; title: string; content: string | null; area: string; tags: string[] | null; links: string | null };
 
 const emptyForm = { title: "", content: "", area: "ideias", tags: "", links: "" };
 
@@ -57,7 +57,7 @@ function BrainPage() {
         content: form.content.trim() || null,
         area: form.area,
         tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
-        links: form.links.split(/[\s,]+/).map((t) => t.trim()).filter(Boolean),
+        links: form.links.trim() || null,
       });
       if (error) throw error;
     },
@@ -131,9 +131,9 @@ function BrainPage() {
                 {(n.tags ?? []).map((t) => <span key={t} className="rounded-full border border-border px-2 py-0.5 text-[11px] text-primary">#{t}</span>)}
               </div>
             )}
-            {!!(n.links ?? []).length && (
+            {n.links && (
               <div className="mt-2 grid gap-1">
-                {(n.links ?? []).map((l) => (
+                {n.links.split(/[\s,]+/).filter(Boolean).map((l) => (
                   <a key={l} href={l} target="_blank" rel="noreferrer" className="truncate text-xs text-primary underline">{l}</a>
                 ))}
               </div>

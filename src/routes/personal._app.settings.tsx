@@ -56,7 +56,7 @@ function SettingsPage() {
         bio: settings.bio ?? "",
         location: settings.location ?? "",
         theme: settings.theme ?? "dark",
-        notifications: settings.notifications ?? true,
+        notifications: settings.notifications !== false,
       });
     }
   }, [settings]);

@@ -26,7 +26,7 @@ const STATUSES = ["todos", "quero_ler", "lendo", "concluido"] as const;
 const LABEL: Record<string, string> = { todos: "Todos", quero_ler: "Quero ler", lendo: "Lendo", concluido: "Concluído" };
 
 type Book = {
-  id: string; title: string; author: string | null; cover_url: string | null; category: string | null;
+  id: string; title: string; author: string | null; cover_url: string | null; category: string;
   status: string; rating: number | null; notes: string | null; learnings: string | null;
 };
 
@@ -57,7 +57,7 @@ function LibraryPage() {
     mutationFn: async () => {
       const { error } = await supabase.from("books").insert({
         user_id: userId!, title: form.title.trim(), author: form.author.trim() || null,
-        cover_url: form.cover_url.trim() || null, category: form.category.trim() || null,
+        cover_url: form.cover_url.trim() || null, category: form.category.trim() || 'geral',
         status: form.status, rating: Number(form.rating) || 0,
         notes: form.notes.trim() || null, learnings: form.learnings.trim() || null,
       });
@@ -67,7 +67,7 @@ function LibraryPage() {
   });
 
   const update = useMutation({
-    mutationFn: async ({ id, patch }: { id: string; patch: Partial<Book> }) => {
+    mutationFn: async ({ id, patch }: { id: string; patch: { status?: string; rating?: number } }) => {
       const { error } = await supabase.from("books").update(patch).eq("id", id);
       if (error) throw error;
     },
