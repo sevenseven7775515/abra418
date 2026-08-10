@@ -17,6 +17,7 @@ import { Route as PersonalAppModuleRouteImport } from './routes/personal._app.$m
 import { Route as PersonalAppCyclesRouteImport } from './routes/personal._app.cycles'
 import { Route as PersonalAppDashboardRouteImport } from './routes/personal._app.dashboard'
 import { Route as PersonalAppMissionsRouteImport } from './routes/personal._app.missions'
+import { Route as PersonalAppSelfRouteImport } from './routes/personal._app.self'
 import { Route as PersonalAppTasksRouteImport } from './routes/personal._app.tasks'
 import { Route as PersonalAppThelemaRouteImport } from './routes/personal._app.thelema'
 import { Route as PersonalAppThelemaIndexRouteImport } from './routes/personal._app.thelema.index'
@@ -62,6 +63,11 @@ const PersonalAppMissionsRoute = PersonalAppMissionsRouteImport.update({
   path: '/missions',
   getParentRoute: () => PersonalAppRoute,
 } as any)
+const PersonalAppSelfRoute = PersonalAppSelfRouteImport.update({
+  id: '/self',
+  path: '/self',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
 const PersonalAppTasksRoute = PersonalAppTasksRouteImport.update({
   id: '/tasks',
   path: '/tasks',
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/personal/cycles': typeof PersonalAppCyclesRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
+  '/personal/self': typeof PersonalAppSelfRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
   '/personal/thelema': typeof PersonalAppThelemaRouteWithChildren
   '/personal/thelema/journal': typeof PersonalAppThelemaJournalRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/personal/cycles': typeof PersonalAppCyclesRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
+  '/personal/self': typeof PersonalAppSelfRoute
   '/personal/tasks': typeof PersonalAppTasksRoute
   '/personal/thelema/journal': typeof PersonalAppThelemaJournalRoute
   '/personal/thelema': typeof PersonalAppThelemaIndexRoute
@@ -120,6 +128,7 @@ export interface FileRoutesById {
   '/personal/_app/cycles': typeof PersonalAppCyclesRoute
   '/personal/_app/dashboard': typeof PersonalAppDashboardRoute
   '/personal/_app/missions': typeof PersonalAppMissionsRoute
+  '/personal/_app/self': typeof PersonalAppSelfRoute
   '/personal/_app/tasks': typeof PersonalAppTasksRoute
   '/personal/_app/thelema': typeof PersonalAppThelemaRouteWithChildren
   '/personal/_app/thelema/journal': typeof PersonalAppThelemaJournalRoute
@@ -136,6 +145,7 @@ export interface FileRouteTypes {
     | '/personal/cycles'
     | '/personal/dashboard'
     | '/personal/missions'
+    | '/personal/self'
     | '/personal/tasks'
     | '/personal/thelema'
     | '/personal/thelema/journal'
@@ -149,6 +159,7 @@ export interface FileRouteTypes {
     | '/personal/cycles'
     | '/personal/dashboard'
     | '/personal/missions'
+    | '/personal/self'
     | '/personal/tasks'
     | '/personal/thelema/journal'
     | '/personal/thelema'
@@ -162,6 +173,7 @@ export interface FileRouteTypes {
     | '/personal/_app/cycles'
     | '/personal/_app/dashboard'
     | '/personal/_app/missions'
+    | '/personal/_app/self'
     | '/personal/_app/tasks'
     | '/personal/_app/thelema'
     | '/personal/_app/thelema/journal'
@@ -233,6 +245,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonalAppMissionsRouteImport
       parentRoute: typeof PersonalAppRoute
     }
+    '/personal/_app/self': {
+      id: '/personal/_app/self'
+      path: '/self'
+      fullPath: '/personal/self'
+      preLoaderRoute: typeof PersonalAppSelfRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
     '/personal/_app/tasks': {
       id: '/personal/_app/tasks'
       path: '/tasks'
@@ -282,6 +301,7 @@ interface PersonalAppRouteChildren {
   PersonalAppCyclesRoute: typeof PersonalAppCyclesRoute
   PersonalAppDashboardRoute: typeof PersonalAppDashboardRoute
   PersonalAppMissionsRoute: typeof PersonalAppMissionsRoute
+  PersonalAppSelfRoute: typeof PersonalAppSelfRoute
   PersonalAppTasksRoute: typeof PersonalAppTasksRoute
   PersonalAppThelemaRoute: typeof PersonalAppThelemaRouteWithChildren
 }
@@ -291,6 +311,7 @@ const PersonalAppRouteChildren: PersonalAppRouteChildren = {
   PersonalAppCyclesRoute: PersonalAppCyclesRoute,
   PersonalAppDashboardRoute: PersonalAppDashboardRoute,
   PersonalAppMissionsRoute: PersonalAppMissionsRoute,
+  PersonalAppSelfRoute: PersonalAppSelfRoute,
   PersonalAppTasksRoute: PersonalAppTasksRoute,
   PersonalAppThelemaRoute: PersonalAppThelemaRouteWithChildren,
 }
