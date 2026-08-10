@@ -16,6 +16,7 @@ import { Route as PersonalLoginRouteImport } from './routes/personal.login'
 import { Route as PersonalAppModuleRouteImport } from './routes/personal._app.$module'
 import { Route as PersonalAppAgendaRouteImport } from './routes/personal._app.agenda'
 import { Route as PersonalAppAiRouteImport } from './routes/personal._app.ai'
+import { Route as PersonalAppBusinessRouteImport } from './routes/personal._app.business'
 import { Route as PersonalAppCyclesRouteImport } from './routes/personal._app.cycles'
 import { Route as PersonalAppDashboardRouteImport } from './routes/personal._app.dashboard'
 import { Route as PersonalAppFinanceRouteImport } from './routes/personal._app.finance'
@@ -63,6 +64,11 @@ const PersonalAppAgendaRoute = PersonalAppAgendaRouteImport.update({
 const PersonalAppAiRoute = PersonalAppAiRouteImport.update({
   id: '/ai',
   path: '/ai',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
+const PersonalAppBusinessRoute = PersonalAppBusinessRouteImport.update({
+  id: '/business',
+  path: '/business',
   getParentRoute: () => PersonalAppRoute,
 } as any)
 const PersonalAppCyclesRoute = PersonalAppCyclesRouteImport.update({
@@ -140,6 +146,7 @@ export interface FileRoutesByFullPath {
   '/personal/$module': typeof PersonalAppModuleRoute
   '/personal/agenda': typeof PersonalAppAgendaRoute
   '/personal/ai': typeof PersonalAppAiRoute
+  '/personal/business': typeof PersonalAppBusinessRoute
   '/personal/cycles': typeof PersonalAppCyclesRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
   '/personal/finance': typeof PersonalAppFinanceRoute
@@ -161,6 +168,7 @@ export interface FileRoutesByTo {
   '/personal/$module': typeof PersonalAppModuleRoute
   '/personal/agenda': typeof PersonalAppAgendaRoute
   '/personal/ai': typeof PersonalAppAiRoute
+  '/personal/business': typeof PersonalAppBusinessRoute
   '/personal/cycles': typeof PersonalAppCyclesRoute
   '/personal/dashboard': typeof PersonalAppDashboardRoute
   '/personal/finance': typeof PersonalAppFinanceRoute
@@ -183,6 +191,7 @@ export interface FileRoutesById {
   '/personal/_app/$module': typeof PersonalAppModuleRoute
   '/personal/_app/agenda': typeof PersonalAppAgendaRoute
   '/personal/_app/ai': typeof PersonalAppAiRoute
+  '/personal/_app/business': typeof PersonalAppBusinessRoute
   '/personal/_app/cycles': typeof PersonalAppCyclesRoute
   '/personal/_app/dashboard': typeof PersonalAppDashboardRoute
   '/personal/_app/finance': typeof PersonalAppFinanceRoute
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/personal/$module'
     | '/personal/agenda'
     | '/personal/ai'
+    | '/personal/business'
     | '/personal/cycles'
     | '/personal/dashboard'
     | '/personal/finance'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/personal/$module'
     | '/personal/agenda'
     | '/personal/ai'
+    | '/personal/business'
     | '/personal/cycles'
     | '/personal/dashboard'
     | '/personal/finance'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/personal/_app/$module'
     | '/personal/_app/agenda'
     | '/personal/_app/ai'
+    | '/personal/_app/business'
     | '/personal/_app/cycles'
     | '/personal/_app/dashboard'
     | '/personal/_app/finance'
@@ -320,6 +332,13 @@ declare module '@tanstack/react-router' {
       path: '/ai'
       fullPath: '/personal/ai'
       preLoaderRoute: typeof PersonalAppAiRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
+    '/personal/_app/business': {
+      id: '/personal/_app/business'
+      path: '/business'
+      fullPath: '/personal/business'
+      preLoaderRoute: typeof PersonalAppBusinessRouteImport
       parentRoute: typeof PersonalAppRoute
     }
     '/personal/_app/cycles': {
@@ -433,6 +452,7 @@ interface PersonalAppRouteChildren {
   PersonalAppModuleRoute: typeof PersonalAppModuleRoute
   PersonalAppAgendaRoute: typeof PersonalAppAgendaRoute
   PersonalAppAiRoute: typeof PersonalAppAiRoute
+  PersonalAppBusinessRoute: typeof PersonalAppBusinessRoute
   PersonalAppCyclesRoute: typeof PersonalAppCyclesRoute
   PersonalAppDashboardRoute: typeof PersonalAppDashboardRoute
   PersonalAppFinanceRoute: typeof PersonalAppFinanceRoute
@@ -450,6 +470,7 @@ const PersonalAppRouteChildren: PersonalAppRouteChildren = {
   PersonalAppModuleRoute: PersonalAppModuleRoute,
   PersonalAppAgendaRoute: PersonalAppAgendaRoute,
   PersonalAppAiRoute: PersonalAppAiRoute,
+  PersonalAppBusinessRoute: PersonalAppBusinessRoute,
   PersonalAppCyclesRoute: PersonalAppCyclesRoute,
   PersonalAppDashboardRoute: PersonalAppDashboardRoute,
   PersonalAppFinanceRoute: PersonalAppFinanceRoute,
