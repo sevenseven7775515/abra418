@@ -26,6 +26,7 @@ import { Route as PersonalAppJournalRouteImport } from './routes/personal._app.j
 import { Route as PersonalAppLibraryRouteImport } from './routes/personal._app.library'
 import { Route as PersonalAppMapRouteImport } from './routes/personal._app.map'
 import { Route as PersonalAppMissionsRouteImport } from './routes/personal._app.missions'
+import { Route as PersonalAppPatternsRouteImport } from './routes/personal._app.patterns'
 import { Route as PersonalAppPracticesRouteImport } from './routes/personal._app.practices'
 import { Route as PersonalAppSelfRouteImport } from './routes/personal._app.self'
 import { Route as PersonalAppSettingsRouteImport } from './routes/personal._app.settings'
@@ -120,6 +121,11 @@ const PersonalAppMissionsRoute = PersonalAppMissionsRouteImport.update({
   path: '/missions',
   getParentRoute: () => PersonalAppRoute,
 } as any)
+const PersonalAppPatternsRoute = PersonalAppPatternsRouteImport.update({
+  id: '/patterns',
+  path: '/patterns',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
 const PersonalAppPracticesRoute = PersonalAppPracticesRouteImport.update({
   id: '/practices',
   path: '/practices',
@@ -180,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/personal/library': typeof PersonalAppLibraryRoute
   '/personal/map': typeof PersonalAppMapRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
+  '/personal/patterns': typeof PersonalAppPatternsRoute
   '/personal/practices': typeof PersonalAppPracticesRoute
   '/personal/self': typeof PersonalAppSelfRoute
   '/personal/settings': typeof PersonalAppSettingsRoute
@@ -206,6 +213,7 @@ export interface FileRoutesByTo {
   '/personal/library': typeof PersonalAppLibraryRoute
   '/personal/map': typeof PersonalAppMapRoute
   '/personal/missions': typeof PersonalAppMissionsRoute
+  '/personal/patterns': typeof PersonalAppPatternsRoute
   '/personal/practices': typeof PersonalAppPracticesRoute
   '/personal/self': typeof PersonalAppSelfRoute
   '/personal/settings': typeof PersonalAppSettingsRoute
@@ -233,6 +241,7 @@ export interface FileRoutesById {
   '/personal/_app/library': typeof PersonalAppLibraryRoute
   '/personal/_app/map': typeof PersonalAppMapRoute
   '/personal/_app/missions': typeof PersonalAppMissionsRoute
+  '/personal/_app/patterns': typeof PersonalAppPatternsRoute
   '/personal/_app/practices': typeof PersonalAppPracticesRoute
   '/personal/_app/self': typeof PersonalAppSelfRoute
   '/personal/_app/settings': typeof PersonalAppSettingsRoute
@@ -262,6 +271,7 @@ export interface FileRouteTypes {
     | '/personal/library'
     | '/personal/map'
     | '/personal/missions'
+    | '/personal/patterns'
     | '/personal/practices'
     | '/personal/self'
     | '/personal/settings'
@@ -288,6 +298,7 @@ export interface FileRouteTypes {
     | '/personal/library'
     | '/personal/map'
     | '/personal/missions'
+    | '/personal/patterns'
     | '/personal/practices'
     | '/personal/self'
     | '/personal/settings'
@@ -314,6 +325,7 @@ export interface FileRouteTypes {
     | '/personal/_app/library'
     | '/personal/_app/map'
     | '/personal/_app/missions'
+    | '/personal/_app/patterns'
     | '/personal/_app/practices'
     | '/personal/_app/self'
     | '/personal/_app/settings'
@@ -452,6 +464,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonalAppMissionsRouteImport
       parentRoute: typeof PersonalAppRoute
     }
+    '/personal/_app/patterns': {
+      id: '/personal/_app/patterns'
+      path: '/patterns'
+      fullPath: '/personal/patterns'
+      preLoaderRoute: typeof PersonalAppPatternsRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
     '/personal/_app/practices': {
       id: '/personal/_app/practices'
       path: '/practices'
@@ -538,6 +557,7 @@ interface PersonalAppRouteChildren {
   PersonalAppLibraryRoute: typeof PersonalAppLibraryRoute
   PersonalAppMapRoute: typeof PersonalAppMapRoute
   PersonalAppMissionsRoute: typeof PersonalAppMissionsRoute
+  PersonalAppPatternsRoute: typeof PersonalAppPatternsRoute
   PersonalAppPracticesRoute: typeof PersonalAppPracticesRoute
   PersonalAppSelfRoute: typeof PersonalAppSelfRoute
   PersonalAppSettingsRoute: typeof PersonalAppSettingsRoute
@@ -560,6 +580,7 @@ const PersonalAppRouteChildren: PersonalAppRouteChildren = {
   PersonalAppLibraryRoute: PersonalAppLibraryRoute,
   PersonalAppMapRoute: PersonalAppMapRoute,
   PersonalAppMissionsRoute: PersonalAppMissionsRoute,
+  PersonalAppPatternsRoute: PersonalAppPatternsRoute,
   PersonalAppPracticesRoute: PersonalAppPracticesRoute,
   PersonalAppSelfRoute: PersonalAppSelfRoute,
   PersonalAppSettingsRoute: PersonalAppSettingsRoute,
