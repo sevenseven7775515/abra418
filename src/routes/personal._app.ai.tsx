@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 import { Bot, Send, User } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { PersonalShell } from "@/components/personal/PersonalShell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -109,7 +110,13 @@ function AiPage() {
                 "max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-4 py-3 text-sm",
                 m.role === "user" ? "bg-secondary" : "border border-border bg-card",
               )}>
-                {m.content}
+                {m.role === "assistant" ? (
+                  <div className="space-y-2 [&_a]:text-primary [&_a]:underline [&_h1]:text-base [&_h1]:font-bold [&_h2]:text-sm [&_h2]:font-bold [&_h3]:text-sm [&_h3]:font-bold [&_li]:ml-4 [&_li]:list-disc [&_strong]:text-primary">
+                    <ReactMarkdown>{m.content}</ReactMarkdown>
+                  </div>
+                ) : (
+                  m.content
+                )}
               </div>
             </div>
           ))}
