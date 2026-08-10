@@ -7,6 +7,7 @@ import { PersonalShell } from "@/components/personal/PersonalShell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { askAssistant } from "@/lib/assistant.functions";
+import { askMyPast } from "@/lib/journal-ai.functions";
 import { currentPlanetaryHour, dayRuler, moonIllumination, moonPhase, moonSign } from "@/lib/astro";
 import { cn } from "@/lib/utils";
 
@@ -23,17 +24,26 @@ export const Route = createFileRoute("/personal/_app/ai")({
   component: AiPage,
 });
 
-const SUGGESTIONS = [
+const SUGGESTIONS_NOW = [
   "Qual minha melhor prioridade hoje?",
   "Com base no meu perfil e compromissos, organize meu dia.",
   "O que devo estudar hoje na biblioteca Thelema?",
   "Meus objetivos de vida estão coerentes com minhas tarefas atuais?",
 ];
 
+const SUGGESTIONS_PAST = [
+  "Quais hábitos aparecem nos meus melhores dias?",
+  "Quando minha produtividade foi maior?",
+  "Quais padrões antecedem períodos difíceis?",
+  "Quantas vezes pratiquei meditação no histórico?",
+];
+
 type Message = { role: "user" | "assistant"; content: string };
 
 function AiPage() {
   const ask = useServerFn(askAssistant);
+  const askPast = useServerFn(askMyPast);
+  const [mode, setMode] = useState<"now" | "past">("now");
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -52,6 +62,11 @@ function AiPage() {
     setMessages((m) => [...m, { role: "user", content: q }]);
     setLoading(true);
     try {
+      if (mode === "past") {
+        const res = await askPast({ data: { question: q } });
+        setMessages((m) => [...m, { role: "assistant", content: res.answer }]);
+        return;
+      }
       const now = new Date();
       const hour = currentPlanetaryHour(now);
       const phase = moonPhase(now);
@@ -77,9 +92,24 @@ function AiPage() {
   }
 
   return (
-    <PersonalShell title="Assistente IA" subtitle="Sua segunda mente: tarefas, ciclos, perfil e objetivos.">
+    <PersonalShell title="Assistente IA" subtitle="Sua segunda mente: momento atual ou memória histórica.">
+      <div className="mb-4 inline-flex rounded-full border border-border p-1">
+        {([["now", "Agora"], ["past", "Pergunte ao meu passado"]] as const).map(([k, label]) => (
+          <button
+            key={k}
+            onClick={() => { setMode(k); setMessages([]); setError(null); }}
+            className={cn(
+              "rounded-full px-4 py-1.5 text-xs font-semibold transition-colors",
+              mode === k ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div className="mb-4 flex flex-wrap gap-2">
-        {SUGGESTIONS.map((s) => (
+        {(mode === "now" ? SUGGESTIONS_NOW : SUGGESTIONS_PAST).map((s) => (
           <button
             key={s}
             onClick={() => send(s)}
@@ -95,7 +125,9 @@ function AiPage() {
         <div className="grid gap-4">
           {messages.length === 0 && (
             <p className="py-10 text-center text-sm text-muted-foreground">
-              Pergunte algo. O assistente lê suas tarefas, missões, objetivos, valores, perfil e os ciclos do dia.
+              {mode === "now"
+                ? "Pergunte algo. O assistente lê suas tarefas, missões, objetivos, valores, perfil e os ciclos do dia."
+                : "Pergunte ao seu passado. A resposta usa seu diário, acontecimentos, insights, práticas e livros registrados."}
             </p>
           )}
           {messages.map((m, i) => (
