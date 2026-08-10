@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PersonalIndexRouteImport } from './routes/personal.index'
 import { Route as PersonalAppRouteImport } from './routes/personal._app'
 import { Route as PersonalLoginRouteImport } from './routes/personal.login'
+import { Route as PersonalAppDashboardRouteImport } from './routes/personal._app.dashboard'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,36 +35,51 @@ const PersonalLoginRoute = PersonalLoginRouteImport.update({
   path: '/personal/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PersonalAppDashboardRoute = PersonalAppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => PersonalAppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/personal': typeof PersonalAppRoute
+  '/personal': typeof PersonalAppRouteWithChildren
   '/personal/login': typeof PersonalLoginRoute
   '/personal/': typeof PersonalIndexRoute
+  '/personal/dashboard': typeof PersonalAppDashboardRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/personal': typeof PersonalIndexRoute
   '/personal/login': typeof PersonalLoginRoute
+  '/personal/dashboard': typeof PersonalAppDashboardRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/personal/_app': typeof PersonalAppRoute
+  '/personal/_app': typeof PersonalAppRouteWithChildren
   '/personal/login': typeof PersonalLoginRoute
   '/personal/': typeof PersonalIndexRoute
+  '/personal/_app/dashboard': typeof PersonalAppDashboardRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/personal' | '/personal/login' | '/personal/'
+  fullPaths:
+    '/' | '/personal' | '/personal/login' | '/personal/' | '/personal/dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/personal' | '/personal/login'
-  id: '__root__' | '/' | '/personal/_app' | '/personal/login' | '/personal/'
+  to: '/' | '/personal' | '/personal/login' | '/personal/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/personal/_app'
+    | '/personal/login'
+    | '/personal/'
+    | '/personal/_app/dashboard'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  PersonalAppRoute: typeof PersonalAppRoute
+  PersonalAppRoute: typeof PersonalAppRouteWithChildren
   PersonalLoginRoute: typeof PersonalLoginRoute
   PersonalIndexRoute: typeof PersonalIndexRoute
 }
@@ -98,12 +114,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersonalLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/personal/_app/dashboard': {
+      id: '/personal/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/personal/dashboard'
+      preLoaderRoute: typeof PersonalAppDashboardRouteImport
+      parentRoute: typeof PersonalAppRoute
+    }
   }
 }
 
+interface PersonalAppRouteChildren {
+  PersonalAppDashboardRoute: typeof PersonalAppDashboardRoute
+}
+
+const PersonalAppRouteChildren: PersonalAppRouteChildren = {
+  PersonalAppDashboardRoute: PersonalAppDashboardRoute,
+}
+
+const PersonalAppRouteWithChildren = PersonalAppRoute._addFileChildren(
+  PersonalAppRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  PersonalAppRoute: PersonalAppRoute,
+  PersonalAppRoute: PersonalAppRouteWithChildren,
   PersonalLoginRoute: PersonalLoginRoute,
   PersonalIndexRoute: PersonalIndexRoute,
 }
