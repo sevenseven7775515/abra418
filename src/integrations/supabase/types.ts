@@ -14,6 +14,159 @@ export type Database = {
   }
   public: {
     Tables: {
+      astronomical_events: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string | null
+          event_date: string
+          id: string
+          kind: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          event_date: string
+          id?: string
+          kind?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          event_date?: string
+          id?: string
+          kind?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      enneagram_profile: {
+        Row: {
+          challenges: string | null
+          created_at: string
+          desires: string | null
+          development_level: string | null
+          fears: string | null
+          instinct: string | null
+          main_type: string | null
+          strengths: string | null
+          updated_at: string
+          user_id: string
+          virtues: string | null
+          wing: string | null
+        }
+        Insert: {
+          challenges?: string | null
+          created_at?: string
+          desires?: string | null
+          development_level?: string | null
+          fears?: string | null
+          instinct?: string | null
+          main_type?: string | null
+          strengths?: string | null
+          updated_at?: string
+          user_id: string
+          virtues?: string | null
+          wing?: string | null
+        }
+        Update: {
+          challenges?: string | null
+          created_at?: string
+          desires?: string | null
+          development_level?: string | null
+          fears?: string | null
+          instinct?: string | null
+          main_type?: string | null
+          strengths?: string | null
+          updated_at?: string
+          user_id?: string
+          virtues?: string | null
+          wing?: string | null
+        }
+        Relationships: []
+      }
+      life_goals: {
+        Row: {
+          created_at: string
+          description: string | null
+          horizon: string
+          id: string
+          status: string
+          target_date: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          horizon?: string
+          id?: string
+          status?: string
+          target_date?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          horizon?: string
+          id?: string
+          status?: string
+          target_date?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mbti_profile: {
+        Row: {
+          characteristics: string | null
+          communication: string | null
+          created_at: string
+          decision_making: string | null
+          mbti_type: string
+          strengths: string | null
+          updated_at: string
+          user_id: string
+          watchouts: string | null
+        }
+        Insert: {
+          characteristics?: string | null
+          communication?: string | null
+          created_at?: string
+          decision_making?: string | null
+          mbti_type?: string
+          strengths?: string | null
+          updated_at?: string
+          user_id: string
+          watchouts?: string | null
+        }
+        Update: {
+          characteristics?: string | null
+          communication?: string | null
+          created_at?: string
+          decision_making?: string | null
+          mbti_type?: string
+          strengths?: string | null
+          updated_at?: string
+          user_id?: string
+          watchouts?: string | null
+        }
+        Relationships: []
+      }
       missions: {
         Row: {
           created_at: string
@@ -50,6 +203,36 @@ export type Database = {
         }
         Relationships: []
       }
+      personal_values: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          rank: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          rank?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          rank?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -68,6 +251,39 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      self_profile: {
+        Row: {
+          created_at: string
+          headline: string | null
+          mission: string | null
+          principles: string | null
+          rules: string | null
+          updated_at: string
+          user_id: string
+          vision: string | null
+        }
+        Insert: {
+          created_at?: string
+          headline?: string | null
+          mission?: string | null
+          principles?: string | null
+          rules?: string | null
+          updated_at?: string
+          user_id: string
+          vision?: string | null
+        }
+        Update: {
+          created_at?: string
+          headline?: string | null
+          mission?: string | null
+          principles?: string | null
+          rules?: string | null
+          updated_at?: string
+          user_id?: string
+          vision?: string | null
         }
         Relationships: []
       }
@@ -115,6 +331,214 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      thelema_authors: {
+        Row: {
+          bio: string | null
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      thelema_journal: {
+        Row: {
+          created_at: string
+          dreams: string | null
+          entry_date: string
+          experiences: string | null
+          id: string
+          mental_state: string | null
+          observations: string | null
+          practice: string | null
+          results: string | null
+          study: string | null
+          symbols: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dreams?: string | null
+          entry_date?: string
+          experiences?: string | null
+          id?: string
+          mental_state?: string | null
+          observations?: string | null
+          practice?: string | null
+          results?: string | null
+          study?: string | null
+          symbols?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dreams?: string | null
+          entry_date?: string
+          experiences?: string | null
+          id?: string
+          mental_state?: string | null
+          observations?: string | null
+          practice?: string | null
+          results?: string | null
+          study?: string | null
+          symbols?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      thelema_notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          text_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          text_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          text_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thelema_notes_text_id_fkey"
+            columns: ["text_id"]
+            isOneToOne: false
+            referencedRelation: "thelema_texts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      thelema_texts: {
+        Row: {
+          author: string
+          created_at: string
+          favorite: boolean
+          id: string
+          last_read_at: string | null
+          notes: string | null
+          original_language: string
+          source_url: string | null
+          status: string
+          study_minutes: number
+          title_original: string
+          title_pt: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          author?: string
+          created_at?: string
+          favorite?: boolean
+          id?: string
+          last_read_at?: string | null
+          notes?: string | null
+          original_language?: string
+          source_url?: string | null
+          status?: string
+          study_minutes?: number
+          title_original: string
+          title_pt?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          author?: string
+          created_at?: string
+          favorite?: boolean
+          id?: string
+          last_read_at?: string | null
+          notes?: string | null
+          original_language?: string
+          source_url?: string | null
+          status?: string
+          study_minutes?: number
+          title_original?: string
+          title_pt?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      thelema_translations: {
+        Row: {
+          created_at: string
+          id: string
+          publisher: string | null
+          source_url: string | null
+          text_id: string
+          title_pt: string
+          translator: string | null
+          updated_at: string
+          user_id: string
+          year: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          publisher?: string | null
+          source_url?: string | null
+          text_id: string
+          title_pt: string
+          translator?: string | null
+          updated_at?: string
+          user_id: string
+          year?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          publisher?: string | null
+          source_url?: string | null
+          text_id?: string
+          title_pt?: string
+          translator?: string | null
+          updated_at?: string
+          user_id?: string
+          year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thelema_translations_text_id_fkey"
+            columns: ["text_id"]
+            isOneToOne: false
+            referencedRelation: "thelema_texts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
