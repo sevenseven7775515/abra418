@@ -7,6 +7,7 @@ import { PersonalShell } from "@/components/personal/PersonalShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Pipeline } from "@/components/personal/Pipeline";
 import { Chips, Empty, Field, Opt, Select, Stat, money, dateBR, useUserId } from "@/components/personal/kit";
 
 export const Route = createFileRoute("/personal/_app/business")({
@@ -22,13 +23,13 @@ export const Route = createFileRoute("/personal/_app/business")({
   component: BusinessPage,
 });
 
-const TABS = ["visao", "empresas", "projetos", "clientes"] as const;
-const TAB_LABEL = { visao: "Visão geral", empresas: "Empresas", projetos: "Projetos", clientes: "Clientes" };
+const TABS = ["pipeline", "visao", "empresas", "projetos", "clientes"] as const;
+const TAB_LABEL = { pipeline: "Pipeline", visao: "Visão geral", empresas: "Empresas", projetos: "Projetos", clientes: "Clientes" };
 
 function BusinessPage() {
   const qc = useQueryClient();
   const userId = useUserId();
-  const [tab, setTab] = useState<(typeof TABS)[number]>("visao");
+  const [tab, setTab] = useState<(typeof TABS)[number]>("pipeline");
   const [open, setOpen] = useState(false);
   const [company, setCompany] = useState({ name: "", segment: "", description: "", contacts: "", status: "ativa" });
   const [project, setProject] = useState({ name: "", objective: "", deadline: "", status: "ativo", company_id: "", task_id: "" });
@@ -117,6 +118,9 @@ function BusinessPage() {
       actions={<Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Novo</Button>}
     >
       <Chips items={TABS} value={tab} onChange={setTab} labels={TAB_LABEL} />
+
+      {tab === "pipeline" && <Pipeline />}
+
 
       {tab === "visao" && (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

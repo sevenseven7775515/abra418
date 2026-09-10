@@ -30,8 +30,18 @@ export const askAssistant = createServerFn({ method: "POST" })
       supabase.from("astronomical_events").select("title, kind, event_date").order("event_date").limit(10),
     ]);
 
+    const { buildHermesSnapshot } = await import("./hermes-context");
+    const hermes = await buildHermesSnapshot(supabase);
+
     const snapshot = {
       agora: data.context.now,
+      hermes: {
+        estado: hermes.estado,
+        comercial: hermes.comercial,
+        operacional: hermes.operacional,
+        historico: { ...hermes.historico, diarioRecente: hermes.historico.diarioRecente.slice(0, 10) },
+        prioridades: hermes.prioridades,
+      },
       ciclos: { lua: data.context.moon, horasPlanetarias: data.context.planetary },
       tarefasAbertas: tasks.data ?? [],
       missoes: missions.data ?? [],
@@ -54,6 +64,8 @@ export const askAssistant = createServerFn({ method: "POST" })
         "de forma direta, prática e organizada em tópicos curtos. Baseie-se estritamente nos dados do usuário fornecidos " +
         "em JSON: tarefas, missões, objetivos de vida, valores, perfil psicológico (eneagrama e MBTI), ciclos lunares e " +
         "horas planetárias. Quando priorizar, justifique brevemente citando prazo, prioridade, missão ou valor envolvido. " +
+        "Nunca invente fatos, números, empresas, clientes ou datas que não estejam no JSON. Cite a origem (tipo e data) " +
+        "de cada afirmação sobre o passado. Se não houver evidência, responda exatamente: 'Não há dados suficientes registrados'. " +
         "Se faltar informação, diga o que precisa ser cadastrado.",
       prompt: `Dados atuais do usuário:\n${JSON.stringify(snapshot)}\n\nPergunta: ${data.question}`,
     });

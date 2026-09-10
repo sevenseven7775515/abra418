@@ -175,6 +175,56 @@ export type Database = {
           },
         ]
       }
+      captures: {
+        Row: {
+          captured_at: string
+          created_at: string
+          id: string
+          linked_deal_id: string | null
+          linked_journal_id: string | null
+          parsed: Json
+          raw_text: string
+          source: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          captured_at?: string
+          created_at?: string
+          id?: string
+          linked_deal_id?: string | null
+          linked_journal_id?: string | null
+          parsed?: Json
+          raw_text: string
+          source?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          captured_at?: string
+          created_at?: string
+          id?: string
+          linked_deal_id?: string | null
+          linked_journal_id?: string | null
+          parsed?: Json
+          raw_text?: string
+          source?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "captures_linked_journal_id_fkey"
+            columns: ["linked_journal_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           company_id: string | null
@@ -257,6 +307,189 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      contacts: {
+        Row: {
+          channel: string | null
+          client_id: string | null
+          company_id: string | null
+          created_at: string
+          handle: string | null
+          id: string
+          last_touch_at: string | null
+          name: string
+          notes: string | null
+          role: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel?: string | null
+          client_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          handle?: string | null
+          id?: string
+          last_touch_at?: string | null
+          name: string
+          notes?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string | null
+          client_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          handle?: string | null
+          id?: string
+          last_touch_at?: string | null
+          name?: string
+          notes?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_events: {
+        Row: {
+          content: string
+          created_at: string
+          deal_id: string
+          id: string
+          kind: string
+          occurred_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          deal_id: string
+          id?: string
+          kind?: string
+          occurred_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          deal_id?: string
+          id?: string
+          kind?: string
+          occurred_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_events_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deals: {
+        Row: {
+          client_id: string | null
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          expected_close: string | null
+          id: string
+          last_touch_at: string | null
+          lost_reason: string | null
+          next_step: string | null
+          next_step_date: string | null
+          notes: string | null
+          probability: number | null
+          source: string | null
+          stage: string
+          title: string
+          updated_at: string
+          user_id: string
+          value: number | null
+        }
+        Insert: {
+          client_id?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          expected_close?: string | null
+          id?: string
+          last_touch_at?: string | null
+          lost_reason?: string | null
+          next_step?: string | null
+          next_step_date?: string | null
+          notes?: string | null
+          probability?: number | null
+          source?: string | null
+          stage?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          value?: number | null
+        }
+        Update: {
+          client_id?: string | null
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          expected_close?: string | null
+          id?: string
+          last_touch_at?: string | null
+          lost_reason?: string | null
+          next_step?: string | null
+          next_step_date?: string | null
+          notes?: string | null
+          probability?: number | null
+          source?: string | null
+          stage?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documents: {
         Row: {
@@ -451,6 +684,115 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      hermes_briefs: {
+        Row: {
+          content: Json
+          created_at: string
+          feedback: string | null
+          id: string
+          kind: string
+          ref_date: string
+          sources: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          kind?: string
+          ref_date?: string
+          sources?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          feedback?: string | null
+          id?: string
+          kind?: string
+          ref_date?: string
+          sources?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      hermes_suggestions: {
+        Row: {
+          acted_at: string | null
+          brief_id: string | null
+          created_at: string
+          deal_id: string | null
+          domain: string
+          evidence: Json
+          id: string
+          rationale: string | null
+          score: number
+          status: string
+          task_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acted_at?: string | null
+          brief_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          domain?: string
+          evidence?: Json
+          id?: string
+          rationale?: string | null
+          score?: number
+          status?: string
+          task_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acted_at?: string | null
+          brief_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          domain?: string
+          evidence?: Json
+          id?: string
+          rationale?: string | null
+          score?: number
+          status?: string
+          task_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hermes_suggestions_brief_id_fkey"
+            columns: ["brief_id"]
+            isOneToOne: false
+            referencedRelation: "hermes_briefs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hermes_suggestions_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hermes_suggestions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       journal_backups: {
         Row: {
@@ -1030,6 +1372,8 @@ export type Database = {
           description: string | null
           due_date: string | null
           id: string
+          origin: string | null
+          origin_id: string | null
           priority: string
           status: string
           title: string
@@ -1044,6 +1388,8 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          origin?: string | null
+          origin_id?: string | null
           priority?: string
           status?: string
           title: string
@@ -1058,6 +1404,8 @@ export type Database = {
           description?: string | null
           due_date?: string | null
           id?: string
+          origin?: string | null
+          origin_id?: string | null
           priority?: string
           status?: string
           title?: string
