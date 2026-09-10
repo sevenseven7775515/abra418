@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PersonalShell } from "@/components/personal/PersonalShell";
 import { money, dateBR } from "@/components/personal/kit";
 import marcosAvatar from "@/assets/marcos.png.asset.json";
+import { CommercialEngine, HermesDirection, StalledItems, useHermesSnapshot } from "@/components/personal/HermesBlocks";
 import { fetchWeather } from "@/lib/weather";
 import { currentPlanetaryHour, dayRuler, moonIllumination, moonPhase, moonSign } from "@/lib/astro";
 import {
@@ -64,6 +65,8 @@ function DashboardPage() {
     const t = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(t);
   }, []);
+
+  const hermes = useHermesSnapshot();
 
   const { data } = useQuery({
     queryKey: ["dashboard"],
@@ -213,6 +216,12 @@ function DashboardPage() {
           <p className="mt-2 text-sm text-muted-foreground">{phase.summary}</p>
         </div>
       </section>
+
+      <div className="mb-4 grid gap-4">
+        <HermesDirection snapshot={hermes.data} compact />
+        <CommercialEngine snapshot={hermes.data} />
+        <StalledItems snapshot={hermes.data} />
+      </div>
 
       <section className="panel mb-4 p-5">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">Base histórica</p>

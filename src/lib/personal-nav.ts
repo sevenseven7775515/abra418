@@ -1,7 +1,7 @@
 import {
   Home, CalendarDays, CheckSquare, Target, Briefcase, Wallet, ShoppingCart,
   FolderOpen, Brain, Library, BookOpen, Moon, Flame, ScrollText, Bot, Settings,
-  UserCircle, Map, Radar, History,
+  UserCircle, Map, Radar, History, Compass, ClipboardPaste,
   type LucideIcon,
 } from "lucide-react";
 
@@ -14,6 +14,8 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   { slug: "dashboard", label: "Dashboard", icon: Home, ready: true },
+  { slug: "hermes", label: "Hermes", icon: Compass, ready: true },
+  { slug: "capture", label: "Captura", icon: ClipboardPaste, ready: true },
   { slug: "agenda", label: "Agenda", icon: CalendarDays, ready: true },
   { slug: "tasks", label: "Tarefas", icon: CheckSquare, ready: true },
   { slug: "missions", label: "Missões", icon: Target, ready: true },
