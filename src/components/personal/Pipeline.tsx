@@ -104,8 +104,8 @@ export function Pipeline() {
     onSuccess: () => { setLogText(""); setLogFor(null); refresh(); },
   });
 
-  const patch = async (id: string, values: Record<string, unknown>) => {
-    await supabase.from("deals").update(values).eq("id", id);
+  const patch = async (id: string, values: Partial<DealRow> & { last_touch_at?: string }) => {
+    await supabase.from("deals").update(values as never).eq("id", id);
     refresh();
   };
 

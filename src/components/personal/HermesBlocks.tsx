@@ -22,7 +22,7 @@ export function NoData({ children }: { children: React.ReactNode }) {
 }
 
 /** Bloco 1 — Direção do Hermes: foco, 3 prioridades com evidência e sugestões acionáveis. */
-export function HermesDirection({ snapshot, compact = false }: { snapshot?: HermesSnapshot; compact?: boolean }) {
+export function HermesDirection({ snapshot, compact = false }: { snapshot: HermesSnapshot | undefined; compact?: boolean }) {
   const qc = useQueryClient();
   const listFn = useServerFn(listSuggestions);
   const updateFn = useServerFn(updateSuggestion);
@@ -108,7 +108,7 @@ export function HermesDirection({ snapshot, compact = false }: { snapshot?: Herm
 }
 
 /** Bloco 2 — Motor comercial: higiene do pipeline e itens parados. */
-export function CommercialEngine({ snapshot }: { snapshot?: HermesSnapshot }) {
+export function CommercialEngine({ snapshot }: { snapshot: HermesSnapshot | undefined }) {
   const c = snapshot?.comercial;
   return (
     <section className="panel p-5">
@@ -166,7 +166,7 @@ export function CommercialEngine({ snapshot }: { snapshot?: HermesSnapshot }) {
 }
 
 /** Itens parados em qualquer frente. */
-export function StalledItems({ snapshot }: { snapshot?: HermesSnapshot }) {
+export function StalledItems({ snapshot }: { snapshot: HermesSnapshot | undefined }) {
   const o = snapshot?.operacional;
   const items = [
     ...(snapshot?.comercial.criticos ?? []).map((c) => `${c.titulo} — ${c.problema}`),

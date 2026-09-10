@@ -8,7 +8,7 @@ import { currentStreak, daysAgo, disciplineScore, energyScore, moodScore, produc
 
 type DB = SupabaseClient<Database>;
 
-export type Evidence = { tipo: string; ref: string; id?: string; data?: string };
+export type Evidence = { tipo: string; ref: string; id?: string | undefined; data?: string | undefined };
 
 export type Priority = {
   id: string;
