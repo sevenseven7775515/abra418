@@ -1,0 +1,1 @@
+ALTER TABLE public.self_profile ADD COLUMN IF NOT EXISTS birth_at timestamptz;

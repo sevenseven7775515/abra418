@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Empty, Field, Opt, Select, dateBR, useUserId } from "@/components/personal/kit";
+import { cleanJournalText, cleanJournalTitle } from "@/lib/journal-parse";
 
 export const Route = createFileRoute("/personal/_app/journal")({
   head: () => ({
@@ -169,15 +170,20 @@ function JournalPage() {
           <article key={e.id} className="panel p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-semibold">{e.title || dateBR(e.entry_date)}</p>
+                <p className="font-semibold">{cleanJournalTitle(e.title) || dateBR(e.entry_date)}</p>
                 <p className="text-xs capitalize text-muted-foreground">
                   {dateBR(e.entry_date)}{e.mood ? ` · humor ${e.mood}` : ""}{e.energy !== null ? ` · energia ${e.energy}/10` : ""}
-                  {e.source_file ? ` · ${e.source_file}` : ""}
+                  
                 </p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => remove.mutate(e.id)}><Trash2 className="h-4 w-4" /></Button>
             </div>
-            {e.content && <p className="mt-3 whitespace-pre-wrap text-sm text-muted-foreground">{e.content}</p>}
+            {e.content && (
+              <details className="mt-3 group">
+                <summary className="cursor-pointer text-xs uppercase tracking-wide text-muted-foreground hover:text-foreground">Ver texto original</summary>
+                <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{cleanJournalText(e.content)}</p>
+              </details>
+            )}
             <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
               {e.gratitude && <p><span className="text-primary">Gratidão:</span> {e.gratitude}</p>}
               {e.learnings && <p><span className="text-primary">Aprendizados:</span> {e.learnings}</p>}
