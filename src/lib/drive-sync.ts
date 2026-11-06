@@ -10,14 +10,14 @@ export type SyncDeps = {
   process: (a: { data: { ids: string[]; integrate: boolean } }) => Promise<unknown>;
   onStatus?: (s: string) => void;
 };
-export type SyncResult = { total: number; saved: number; failed: string[]; aiStopped?: string };
+export type SyncResult = { total: number; saved: number; failed: string[]; aiStopped?: string | undefined };
 
 export const LAST_SYNC_KEY = "personal.drive.lastSync";
 
 /** Lê com IA diários já salvos mas ainda não analisados (retomada após interrupção). */
 export async function analyzePending(
   ids: string[], d: Pick<SyncDeps, "process" | "onStatus">, max = 40,
-): Promise<{ analyzed: number; aiStopped?: string }> {
+): Promise<{ analyzed: number; aiStopped?: string | undefined }> {
   const todo = ids.slice(0, max);
   let analyzed = 0;
   for (let i = 0; i < todo.length; i += 5) {
