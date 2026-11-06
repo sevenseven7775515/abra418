@@ -12,7 +12,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const activeIsSecondary = NAV_ITEMS.some((i) => !i.essential && pathname === `/personal/${i.slug}`);
   const [more, setMore] = useState(activeIsSecondary);
-  const items = NAV_ITEMS.filter((i) => i.essential || more);
+  const items = [...NAV_ITEMS.filter((i) => i.essential), ...(more ? NAV_ITEMS.filter((i) => !i.essential) : [])];
 
   return (
     <nav className="flex flex-col gap-1 px-3 pb-6">
