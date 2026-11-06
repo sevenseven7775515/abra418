@@ -11,8 +11,8 @@ const GDOC = "application/vnd.google-apps.document";
 const OK_EXT = /\.(txt|md|markdown|rtf|docx)$/i;
 
 function headers() {
-  const a = process.env.LOVABLE_API_KEY;
-  const b = process.env.GOOGLE_DRIVE_API_KEY;
+  const a = process.env["LOVABLE_API_KEY"];
+  const b = process.env["GOOGLE_DRIVE_API_KEY"];
   if (!a || !b) throw new Error("Google Drive não está conectado.");
   return { Authorization: `Bearer ${a}`, "X-Connection-Api-Key": b };
 }
