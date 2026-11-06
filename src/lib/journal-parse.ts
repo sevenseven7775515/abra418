@@ -108,7 +108,7 @@ export function cleanJournalText(input: string | null | undefined): string {
     .replace(/\\'([0-9a-f]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)))
     .replace(/\\\*\\?[a-z]*\\?/gi, " ")
     .replace(/\\[a-z]+-?\d*/gi, " ")
-    .replace(/\b(?:eftab\d+|tightenfactor\d+|pardirnatural|partightenfactor\d*)\b/gi, " ")
+    .replace(/(?:eftab\d+|partightenfactor\d*|tightenfactor\d+|pardirnatural)/gi, " ")
     .replace(/\\(?=\s|$)/g, "")
     .replace(/[{}]/g, "")
     .replace(/^\s*[\\*\s]+\s*$/gm, "")
