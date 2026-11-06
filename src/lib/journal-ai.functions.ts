@@ -17,6 +17,10 @@ type Analysis = {
   padroes: string | null;
   livros: { titulo: string; autor: string | null }[];
   eventos: { horario: string | null; categoria: string; descricao: string }[];
+  contas?: { descricao: string; valor: number | null; vencimento: string | null }[];
+  dividas?: { descricao: string; valor: number | null }[];
+  melhorias?: string[];
+  livros_finalizados?: { titulo: string; autor: string | null }[];
 };
 
 function safeJson(text: string): Record<string, Analysis> {
@@ -58,7 +62,11 @@ export const processJournalEntries = createServerFn({ method: "POST" })
         "Você classifica entradas de diário pessoal em português do Brasil. Responda SOMENTE com JSON válido, " +
         'no formato {"<id>": {"humor": "otimo|bom|neutro|cansado|dificil", "energia": 0-10, "habitos": [], ' +
         '"praticas": [{"nome": "", "minutos": null}], "aprendizados": "", "tags": [], "padroes": "", ' +
-        '"livros": [{"titulo": "", "autor": null}], "eventos": [{"horario": "HH:MM ou null", "categoria": "trabalho|estudo|saude|espiritual|pessoal|financeiro|geral", "descricao": ""}]}}. ' +
+        '"livros": [{"titulo": "", "autor": null}], "eventos": [{"horario": "HH:MM ou null", "categoria": "trabalho|estudo|saude|espiritual|pessoal|financeiro|geral", "descricao": ""}], ' +
+        '"contas": [{"descricao": "", "valor": null, "vencimento": "AAAA-MM-DD ou null"}], "dividas": [{"descricao": "", "valor": null}], ' +
+        '"melhorias": ["pontos que o autor diz que precisa melhorar"], "livros_finalizados": [{"titulo": "", "autor": null}]}}. ' +
+        "contas = contas a pagar citadas explicitamente; dividas = dívidas citadas; livros_finalizados = só livros que o texto diz ter terminado. " +
+        "NUNCA invente: se não estiver escrito, use lista vazia. " +
         "Sem texto fora do JSON. Use null quando não houver informação.",
       prompt: `Entradas:\n${JSON.stringify(payload)}`,
     });
@@ -74,6 +82,10 @@ export const processJournalEntries = createServerFn({ method: "POST" })
     const practiceNames = new Set<string>();
     const notes: { user_id: string; title: string; content: string; area: string; tags: string[] }[] = [];
     const books: { titulo: string; autor: string | null }[] = [];
+    const finished: { titulo: string; autor: string | null }[] = [];
+    const signals: { user_id: string; journal_id: string; entry_date: string; kind: string; description: string; amount: number | null; due_date: string | null }[] = [];
+    const isoOk = (d: unknown) => (typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : null);
+    const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
     for (const e of entries) {
       const a = parsed[e.id];
@@ -84,6 +96,14 @@ export const processJournalEntries = createServerFn({ method: "POST" })
           user_id: userId, journal_id: e.id, event_time: ev.horario ?? null,
           category: ev.categoria || "geral", description: ev.descricao.slice(0, 500),
         });
+      }
+      const base = { user_id: userId, journal_id: e.id, entry_date: e.entry_date };
+      for (const c of a.contas ?? []) if (c?.descricao) signals.push({ ...base, kind: "conta", description: c.descricao.slice(0, 300), amount: num(c.valor), due_date: isoOk(c.vencimento) });
+      for (const d of a.dividas ?? []) if (d?.descricao) signals.push({ ...base, kind: "divida", description: d.descricao.slice(0, 300), amount: num(d.valor), due_date: null });
+      for (const m of a.melhorias ?? []) if (typeof m === "string" && m.trim()) signals.push({ ...base, kind: "melhoria", description: m.slice(0, 300), amount: null, due_date: null });
+      for (const b of a.livros_finalizados ?? []) if (b?.titulo) {
+        signals.push({ ...base, kind: "livro", description: b.titulo.slice(0, 200), amount: null, due_date: null });
+        finished.push(b);
       }
       insights.push({
         user_id: userId, journal_id: e.id,
@@ -122,6 +142,8 @@ export const processJournalEntries = createServerFn({ method: "POST" })
     await supabase.from("journal_insights").delete().in("journal_id", data.ids);
     if (events.length) await supabase.from("journal_events").insert(events);
     if (insights.length) await supabase.from("journal_insights").insert(insights);
+    await supabase.from("journal_signals").delete().in("journal_id", data.ids);
+    if (signals.length) await supabase.from("journal_signals").insert(signals);
 
     if (data.integrate) {
       if (practiceNames.size) {
@@ -141,6 +163,15 @@ export const processJournalEntries = createServerFn({ method: "POST" })
           .slice(0, 10)
           .map((b) => ({ user_id: userId, title: b.titulo, author: b.autor, category: "geral", status: "lendo" }));
         if (news.length) await supabase.from("books").insert(news);
+      }
+      if (finished.length) {
+        const { data: existing } = await supabase.from("books").select("id, title");
+        const map = new Map((existing ?? []).map((b) => [b.title.toLowerCase(), b.id]));
+        for (const b of finished.slice(0, 10)) {
+          const id = map.get(b.titulo.toLowerCase());
+          if (id) await supabase.from("books").update({ status: "lido" }).eq("id", id);
+          else await supabase.from("books").insert({ user_id: userId, title: b.titulo, author: b.autor, category: "geral", status: "lido" });
+        }
       }
       if (notes.length) await supabase.from("brain_notes").insert(notes.slice(0, 8));
     }
