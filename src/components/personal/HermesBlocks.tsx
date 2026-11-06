@@ -141,7 +141,7 @@ export function StalledItems({ snapshot }: { snapshot: HermesSnapshot | undefine
   const items = [
     ...(snapshot?.comercial.criticos ?? []).map((c) => `${c.titulo} — ${c.problema}`),
     ...(o && o.tarefasAtrasadas ? [`${o.tarefasAtrasadas} tarefa(s) com prazo vencido`] : []),
-    ...(snapshot?.diario.contas ?? []).map((c) => `${c.texto}${c.vence ? ` — vence ${dateBR(c.vence)}` : ""}`),
+    ...(snapshot?.diario.contas ?? []).slice(3).map((c) => `${c.texto}${c.vence ? ` — vence ${dateBR(c.vence)}` : ""}`),
     ...(snapshot?.diario.melhorias ?? []).filter((m) => m.vezes >= 2).map((m) => `${m.texto} (repetido ${m.vezes}× no diário)`),
     ...(snapshot?.estado.diasDesdeUltimoDiario && snapshot.estado.diasDesdeUltimoDiario >= 3
       ? [`${snapshot.estado.diasDesdeUltimoDiario} dias sem registro no diário`]
