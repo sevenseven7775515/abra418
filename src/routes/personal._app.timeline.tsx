@@ -108,6 +108,20 @@ function TimelinePage() {
         <Stat label="Acontecimentos" value={timeline.length + events.length} />
       </div>
 
+      {entries.length > 0 && (() => {
+        const seen = new Map<string, number>();
+        for (const e of entries) seen.set(e.entry_date, (seen.get(e.entry_date) ?? 0) + 1);
+        const dup = [...seen.values()].filter((n) => n > 1).length;
+        const empty = entries.filter((e) => !e.content?.trim()).length;
+        return (
+          <div className="mb-6 rounded-xl border border-border bg-secondary/30 px-4 py-3 text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">Auditoria (somente leitura):</span>{" "}
+            {entries.length} diários no banco × ~299 arquivos informados — diferença de {Math.max(0, 299 - entries.length)}.
+            {" "}Datas repetidas: {dup} · sem conteúdo: {empty}. Causas prováveis: arquivos sem data reconhecida ou o mesmo dia em mais de um arquivo (unidos na importação). Nada foi alterado.
+          </div>
+        );
+      })()}
+
       <div className="panel mb-6 p-5">
         <p className="mb-2 flex items-center gap-2 text-xs uppercase tracking-wide text-muted-foreground">
           <Search className="h-3 w-3" /> Busca inteligente no histórico
