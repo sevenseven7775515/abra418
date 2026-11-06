@@ -48,6 +48,16 @@ function FinancePage() {
   const [open, setOpen] = useState(false);
   const [period, setPeriod] = useState<(typeof PERIODS)[number]>("mes");
   const [form, setForm] = useState(emptyForm);
+  const [manual, setManual] = useState(false);
+  const { data: signals = [] } = useQuery({
+    queryKey: ["finance-diary-signals"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("journal_signals").select("id, kind, description, amount, due_date, entry_date")
+        .in("kind", ["conta", "divida"]).eq("resolved", false).order("entry_date", { ascending: false }).limit(60);
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const { data: rows = [] } = useQuery({
     queryKey: ["finance"],
@@ -156,15 +166,32 @@ function FinancePage() {
   return (
     <PersonalShell
       title="Financeiro"
-      subtitle="Receitas, despesas, saldo e contas a vencer."
-      actions={<Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Lançar</Button>}
+      subtitle="Seu fluxo do mês e o que os diários dizem sobre dinheiro."
+      actions={manual ? <Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Lançar</Button> : undefined}
     >
+      <section className="panel mb-6 p-5">
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-muted-foreground">Citado nos diários</h2>
+        {signals.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma conta ou dívida citada nos diários.</p> : (
+          <div className="grid gap-1.5">
+            {signals.slice(0, 12).map((g) => (
+              <div key={g.id} className="flex justify-between gap-3 border-b border-border py-1.5 text-sm">
+                <span className="min-w-0">{g.kind === "divida" ? "Dívida · " : ""}{g.description}</span>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {g.amount ? `${money(Number(g.amount))} · ` : ""}{g.due_date ? `vence ${dateBR(g.due_date)}` : `diário ${dateBR(g.entry_date)}`}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
       <section className="panel mb-6 p-5">
         <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">Fluxo mensal fixo</h2>
-          <Button size="sm" variant="secondary" disabled={!userId || importFlow.isPending} onClick={() => importFlow.mutate()}>
-            {importFlow.isPending ? "Registrando…" : "Registrar minhas entradas e saídas"}
-          </Button>
+          {flow.entradas.length + flow.saidas.length === 0 && (
+            <Button size="sm" variant="secondary" disabled={!userId || importFlow.isPending} onClick={() => importFlow.mutate()}>
+              {importFlow.isPending ? "Registrando…" : "Registrar minhas entradas e saídas"}
+            </Button>
+          )}
         </header>
         {importFlow.error && <p className="mb-3 text-xs text-destructive">Não foi possível salvar agora. Tente novamente em instantes.</p>}
         {importFlow.data !== undefined && <p className="mb-3 text-xs text-primary">{importFlow.data} item(ns) adicionados (sem duplicar).</p>}
@@ -207,6 +234,11 @@ function FinancePage() {
         )}
       </section>
 
+      {!manual ? (
+        <button onClick={() => setManual(true)} className="w-full rounded-xl border border-border px-4 py-3 text-xs uppercase tracking-wide text-muted-foreground hover:text-foreground">
+          Lançamentos manuais (opcional)
+        </button>
+      ) : (<>
       <Chips items={PERIODS} value={period} onChange={setPeriod} labels={PERIOD_LABEL} />
 
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -321,6 +353,7 @@ function FinancePage() {
           </article>
         ))}
       </div>
+      </>)}
     </PersonalShell>
   );
 }

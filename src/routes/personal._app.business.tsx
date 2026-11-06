@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Pipeline } from "@/components/personal/Pipeline";
+import { CommercialEngine, StalledItems, useHermesSnapshot } from "@/components/personal/HermesBlocks";
 import { Chips, Empty, Field, Opt, Select, Stat, money, dateBR, useUserId } from "@/components/personal/kit";
 
 export const Route = createFileRoute("/personal/_app/business")({
@@ -31,6 +32,8 @@ function BusinessPage() {
   const userId = useUserId();
   const [tab, setTab] = useState<(typeof TABS)[number]>("pipeline");
   const [open, setOpen] = useState(false);
+  const [manual, setManual] = useState(false);
+  const snapshot = useHermesSnapshot();
   const [company, setCompany] = useState({ name: "", segment: "", description: "", contacts: "", status: "ativa" });
   const [project, setProject] = useState({ name: "", objective: "", deadline: "", status: "ativo", company_id: "", task_id: "" });
   const [client, setClient] = useState({ name: "", contact: "", history: "", notes: "", company_id: "", status: "ativo" });
@@ -114,9 +117,18 @@ function BusinessPage() {
   return (
     <PersonalShell
       title="Negócios"
-      subtitle="Empresas, projetos, clientes e indicadores."
-      actions={<Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Novo</Button>}
+      subtitle="O que seus diários contam sobre o trabalho."
+      actions={manual ? <Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Novo</Button> : undefined}
     >
+      {!manual ? (
+        <div className="grid gap-4">
+          <CommercialEngine snapshot={snapshot.data} />
+          <StalledItems snapshot={snapshot.data} />
+          <button onClick={() => setManual(true)} className="rounded-xl border border-border px-4 py-3 text-xs uppercase tracking-wide text-muted-foreground hover:text-foreground">
+            Cadastros manuais (opcional)
+          </button>
+        </div>
+      ) : (<>
       <Chips items={TABS} value={tab} onChange={setTab} labels={TAB_LABEL} />
 
       {tab === "pipeline" && <Pipeline />}
@@ -250,6 +262,7 @@ function BusinessPage() {
           </div>
         </>
       )}
+      </>)}
     </PersonalShell>
   );
 }
