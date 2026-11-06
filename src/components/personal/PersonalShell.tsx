@@ -1,7 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import {
-  Bell, CheckSquare, Home, LogOut, Menu, Plus, BookOpen, User, X,
+  Bell, Briefcase, Compass, Home, LogOut, Menu, Plus, Wallet, X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { NAV_ITEMS } from "@/lib/personal-nav";
@@ -10,10 +10,13 @@ import { cn } from "@/lib/utils";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const activeIsSecondary = NAV_ITEMS.some((i) => !i.essential && pathname === `/personal/${i.slug}`);
+  const [more, setMore] = useState(activeIsSecondary);
+  const items = [...NAV_ITEMS.filter((i) => i.essential), ...(more ? NAV_ITEMS.filter((i) => !i.essential) : [])];
 
   return (
     <nav className="flex flex-col gap-1 px-3 pb-6">
-      {NAV_ITEMS.map((item) => {
+      {items.map((item, idx) => {
         const active = pathname === `/personal/${item.slug}`;
         return (
           <Link
@@ -37,7 +40,13 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
             )}
           </Link>
         );
-      })}
+      }).flatMap((el, idx) => (idx === NAV_ITEMS.filter((i) => i.essential).length - 1
+        ? [el, (
+          <button key="more" onClick={() => setMore((v) => !v)} className="mt-3 rounded-xl px-3 py-2 text-left text-[11px] uppercase tracking-wide text-muted-foreground hover:text-foreground">
+            {more ? "− Menos" : "+ Mais módulos"}
+          </button>
+        )]
+        : [el]))}
     </nav>
   );
 }
@@ -58,9 +67,9 @@ function Brand() {
 
 const MOBILE_TABS = [
   { slug: "dashboard", label: "Início", icon: Home },
-  { slug: "tasks", label: "Tarefas", icon: CheckSquare },
-  { slug: "journal", label: "Diário", icon: BookOpen },
-  { slug: "settings", label: "Perfil", icon: User },
+  { slug: "hermes", label: "Hermes", icon: Compass },
+  { slug: "business", label: "Negócios", icon: Briefcase },
+  { slug: "finance", label: "Finanças", icon: Wallet },
 ];
 
 export function PersonalShell({
@@ -143,9 +152,9 @@ export function PersonalShell({
 
       <Link
         to="/personal/$module"
-        params={{ module: "tasks" }}
+        params={{ module: "capture" }}
         className="fixed bottom-24 right-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground glow-neon lg:hidden"
-        aria-label="Adicionar rapidamente"
+        aria-label="Capturar rapidamente"
       >
         <Plus className="h-6 w-6" />
       </Link>
