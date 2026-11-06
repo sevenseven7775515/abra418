@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Chips, Empty, Field, Opt, Select, Stat, money, dateBR, useUserId } from "@/components/personal/kit";
 import { cn } from "@/lib/utils";
+import { analyzeFlow, dayOf, monthlyAmount, userFlowSeed } from "@/lib/cashflow";
 
 export const Route = createFileRoute("/personal/_app/finance")({
   head: () => ({
@@ -107,7 +108,27 @@ function FinancePage() {
   const filtered = rows.filter((r) => r.tx_date >= start.toISOString().slice(0, 10));
   const income = filtered.filter((r) => r.kind === "receita").reduce((s, r) => s + r.amount, 0);
   const expense = filtered.filter((r) => r.kind === "despesa").reduce((s, r) => s + r.amount, 0);
-  const balance = rows.reduce((s, r) => s + (r.kind === "receita" ? r.amount : -r.amount), 0);
+  const balance = rows.filter((r) => r.kind !== "divida").reduce((s, r) => s + (r.kind === "receita" ? r.amount : -r.amount), 0);
+  const flow = analyzeFlow(rows);
+
+  const importFlow = useMutation({
+    mutationFn: async () => {
+      const existing = new Set(rows.map((r) => `${r.kind}|${r.description.toLowerCase()}`));
+      const toAdd = userFlowSeed()
+        .filter((i) => !existing.has(`${i.kind}|${i.description.toLowerCase()}`))
+        .map((i) => ({
+          user_id: userId!, kind: i.kind, description: i.description, amount: i.amount, category: i.category,
+          recurrence: i.recurrence, due_date: i.due_date, tx_date: i.due_date ?? new Date().toISOString().slice(0, 10),
+          paid: false,
+        }));
+      if (toAdd.length) {
+        const { error } = await supabase.from("finance_transactions").insert(toAdd);
+        if (error) throw error;
+      }
+      return toAdd.length;
+    },
+    onSuccess: invalidate,
+  });
 
   const monthly = useMemo(() => {
     const map = new Map<string, { in: number; out: number }>();
@@ -138,6 +159,54 @@ function FinancePage() {
       subtitle="Receitas, despesas, saldo e contas a vencer."
       actions={<Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Lançar</Button>}
     >
+      <section className="panel mb-6 p-5">
+        <header className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">Fluxo mensal fixo</h2>
+          <Button size="sm" variant="secondary" disabled={!userId || importFlow.isPending} onClick={() => importFlow.mutate()}>
+            {importFlow.isPending ? "Registrando…" : "Registrar minhas entradas e saídas"}
+          </Button>
+        </header>
+        {importFlow.error && <p className="mb-3 text-xs text-destructive">Não foi possível salvar agora. Tente novamente em instantes.</p>}
+        {importFlow.data !== undefined && <p className="mb-3 text-xs text-primary">{importFlow.data} item(ns) adicionados (sem duplicar).</p>}
+        <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Stat label="Entradas / mês" value={money(flow.totalIn)} />
+          <Stat label="Saídas / mês" value={money(flow.totalOut)} hint="semanal × 4,33" />
+          <Stat label="Sobra / mês" value={money(flow.sobra)} />
+          <Stat label="Dívidas" value={money(flow.totalDebt)} hint={flow.mesesParaQuitar ? `~${flow.mesesParaQuitar} meses usando toda a sobra` : "total"} />
+        </div>
+        {flow.entradas.length + flow.saidas.length === 0 ? (
+          <Empty>Nenhuma entrada ou saída recorrente ainda.</Empty>
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div>
+              <p className="mb-2 text-xs font-semibold text-primary">Entradas por dia</p>
+              {flow.entradas.map((i) => (
+                <div key={i.id} className="flex justify-between border-b border-border py-1.5 text-sm">
+                  <span>Dia {dayOf(i) === 99 ? "—" : dayOf(i)} · {i.description}</span><span className="text-primary">{money(i.amount)}</span>
+                </div>
+              ))}
+            </div>
+            <div>
+              <p className="mb-2 text-xs font-semibold text-destructive">Saídas (valor mensal)</p>
+              {flow.saidas.map((i) => (
+                <div key={i.id} className="flex justify-between border-b border-border py-1.5 text-sm">
+                  <span>{i.description}{i.recurrence === "semanal" ? ` (${money(i.amount)}/sem)` : ""}</span><span>{money(monthlyAmount(i))}</span>
+                </div>
+              ))}
+            </div>
+            <div>
+              <p className="mb-2 text-xs font-semibold text-muted-foreground">Dívidas</p>
+              {flow.dividas.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma registrada.</p>}
+              {flow.dividas.map((i) => (
+                <div key={i.id} className="flex justify-between border-b border-border py-1.5 text-sm">
+                  <span>{i.description}</span><span>{money(i.amount)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </section>
+
       <Chips items={PERIODS} value={period} onChange={setPeriod} labels={PERIOD_LABEL} />
 
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -153,6 +222,7 @@ function FinancePage() {
             <Select value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value })}>
               <Opt value="despesa">Despesa</Opt>
               <Opt value="receita">Receita</Opt>
+              <Opt value="divida">Dívida</Opt>
             </Select>
           </Field>
           <Field label="Valor">
