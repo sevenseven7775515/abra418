@@ -1329,6 +1329,7 @@ export type Database = {
       }
       self_profile: {
         Row: {
+          birth_at: string | null
           created_at: string
           headline: string | null
           mission: string | null
@@ -1339,6 +1340,7 @@ export type Database = {
           vision: string | null
         }
         Insert: {
+          birth_at?: string | null
           created_at?: string
           headline?: string | null
           mission?: string | null
@@ -1349,6 +1351,7 @@ export type Database = {
           vision?: string | null
         }
         Update: {
+          birth_at?: string | null
           created_at?: string
           headline?: string | null
           mission?: string | null
