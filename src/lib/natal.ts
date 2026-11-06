@@ -41,7 +41,7 @@ export function natalReading(date: Date) {
   const isDay = hour >= 6 && hour < 18;
   return {
     longitude: lon,
-    sign: ZODIAC[signIdx],
+    sign: ZODIAC[signIdx] ?? ZODIAC[0],
     degree: degInSign,
     decan: Math.floor(degInSign / 10) + 1,
     decanRuler: DECAN_RULERS[decanAbs % 7],

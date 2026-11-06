@@ -36,7 +36,7 @@ export function scoreEnneagram(answers: number[]) {
   const scores: Record<string, number> = {};
   ENNEAGRAM_QUESTIONS.forEach((q, i) => { scores[q.type] = (scores[q.type] ?? 0) + (answers[i] ?? 0); });
   const ranked = Object.entries(scores).sort((a, b) => b[1] - a[1]);
-  const main = ranked[0][0];
+  const main = ranked[0]?.[0] ?? "9";
   const n = Number(main);
   const left = String(n === 1 ? 9 : n - 1);
   const right = String(n === 9 ? 1 : n + 1);

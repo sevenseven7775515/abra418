@@ -196,6 +196,7 @@ function EnneagramTest({ current, currentWing, userId, onSaved }: { current: str
       if (!userId || !result) return;
       const a = ENNEAGRAM_ASPECTS[result.main];
       const i = ENNEAGRAM[result.main];
+      if (!a || !i) return;
       const { error } = await supabase.from("enneagram_profile").upsert({
         user_id: userId, main_type: result.main, wing: result.wing,
         strengths: a.positivos.join("; "), challenges: a.negativos.join("; "),
