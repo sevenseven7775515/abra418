@@ -172,7 +172,7 @@ function FinancePage() {
           <Stat label="Entradas / mês" value={money(flow.totalIn)} />
           <Stat label="Saídas / mês" value={money(flow.totalOut)} hint="semanal × 4,33" />
           <Stat label="Sobra / mês" value={money(flow.sobra)} />
-          <Stat label="Dívidas" value={money(flow.totalDebt)} hint={flow.mesesParaQuitar ? `~${flow.mesesParaQuitar} meses usando toda a sobra` : undefined} />
+          <Stat label="Dívidas" value={money(flow.totalDebt)} hint={flow.mesesParaQuitar ? `~${flow.mesesParaQuitar} meses usando toda a sobra` : "total"} />
         </div>
         {flow.entradas.length + flow.saidas.length === 0 ? (
           <Empty>Nenhuma entrada ou saída recorrente ainda.</Empty>
