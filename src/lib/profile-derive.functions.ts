@@ -41,7 +41,8 @@ export const deriveProfileFromJournal = createServerFn({ method: "POST" })
     const { streamText } = await import("ai");
     const gateway = createLovableAiGatewayProvider(key);
     const result = streamText({
-      model: gateway("google/gemini-3.6-flash"),
+      model: gateway("openai/gpt-6-astra"),
+      providerOptions: { "lovable-ai-gateway": { reasoningEffort: "low" } },
       system:
         "Você lê o diário de uma pessoa e infere, SÓ a partir do que está escrito, a missão pessoal, os valores centrais e os objetivos de vida que ela demonstra. " +
         "Nunca invente. Cada item precisa citar 2+ datas (AAAA-MM-DD) presentes nos dados como evidência. Português do Brasil, frases curtas. " +
