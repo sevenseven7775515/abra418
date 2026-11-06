@@ -8,3 +8,4 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+- Drive diary sync runs client-side in PersonalShell (DriveAutoSync, ≤ every 6h, dedupe by source_file, resumes unanalyzed entries); no server cron, so nothing runs without the owner opening the app.

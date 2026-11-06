@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { NAV_ITEMS } from "@/lib/personal-nav";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { DriveAutoSync } from "./DriveAutoSync";
 
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -147,7 +148,7 @@ export function PersonalShell({
           </div>
         </header>
 
-        <main className="px-4 pb-32 pt-6 sm:px-8 lg:pb-12">{children}</main>
+        <main className="px-4 pb-32 pt-6 sm:px-8 lg:pb-12"><DriveAutoSync />{children}</main>
       </div>
 
       <Link

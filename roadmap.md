@@ -13,3 +13,4 @@
 - [x] 11. Navegação discreta (Hermes, Captura)
 - [ ] 12. (testes de regras OK; teste no navegador aguardando banco reativado) Verificação: typecheck/build/lint, RLS, queries, estados vazios
 - [x] 13. Documentar contrato da ponte local Hermes (sem implementar)
+- [x] 14. Google Drive → Diário: importação dos 88 diários novos + sincronização automática (a cada 6h, retoma leituras pendentes)
