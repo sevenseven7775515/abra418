@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PersonalShell } from "@/components/personal/PersonalShell";
 import { JournalImport } from "@/components/personal/JournalImport";
 import { JournalReorg } from "@/components/personal/JournalReorg";
+import { EvolutionReport } from "@/components/personal/EvolutionReport";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -63,6 +64,7 @@ function JournalPage() {
     qc.invalidateQueries({ queryKey: ["journal-entries"] });
     qc.invalidateQueries({ queryKey: ["dashboard-widgets"] });
     qc.invalidateQueries({ queryKey: ["timeline"] });
+    qc.invalidateQueries({ queryKey: ["journal-signals"] });
   };
 
   const create = useMutation({
@@ -107,16 +109,16 @@ function JournalPage() {
   return (
     <PersonalShell
       title="Diário"
-      subtitle="Registro diário com humor, energia e aprendizados."
+      subtitle="Envie o que você já escreve. O resto é automático."
       actions={
         <div className="flex gap-2">
-          <Button variant="secondary" onClick={() => setReorgOpen((v) => !v)} className="font-semibold">
-            <Wand2 className="h-4 w-4" /> Reorganizar histórico
+          <Button variant="ghost" size="icon" title="Reorganizar histórico" onClick={() => setReorgOpen((v) => !v)}>
+            <Wand2 className="h-4 w-4" />
           </Button>
-          <Button variant="secondary" onClick={() => setImportOpen((v) => !v)} className="font-semibold">
-            <Upload className="h-4 w-4" /> Importar Diário Histórico
+          <Button variant="ghost" size="icon" title="Escrever entrada" onClick={() => setOpen((v) => !v)}><Plus className="h-4 w-4" /></Button>
+          <Button onClick={() => setImportOpen((v) => !v)} className="font-semibold glow-neon">
+            <Upload className="h-4 w-4" /> Enviar diário
           </Button>
-          <Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Entrada</Button>
         </div>
       }
     >
@@ -125,11 +127,7 @@ function JournalPage() {
         <JournalImport userId={userId} onDone={invalidate} onClose={() => setImportOpen(false)} />
       )}
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-3">
-        <Stat label="Entradas" value={entries.length} />
-        <Stat label="Energia média" value={avgEnergy} hint="escala 0 a 10" />
-        <Stat label="Último registro" value={dateBR(entries[0]?.entry_date)} />
-      </div>
+      <EvolutionReport entries={entries} />
 
       {open && (
         <form onSubmit={(e) => { e.preventDefault(); create.mutate(); }} className="panel mb-6 grid gap-4 p-5 sm:grid-cols-2">
