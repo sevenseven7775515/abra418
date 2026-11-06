@@ -85,7 +85,7 @@ export async function parseJournalFile(file: File): Promise<ParsedFile> {
     const res = await mammoth.extractRawText({ arrayBuffer: buf });
     raw = res.value;
   } else if (ext === "rtf") {
-    raw = rtfToText(await readText(file));
+    raw = cleanJournalText(rtfToText(await readText(file)));
   } else {
     raw = await readText(file);
   }
@@ -100,3 +100,25 @@ export async function parseJournalFile(file: File): Promise<ParsedFile> {
 }
 
 export const ACCEPTED_EXTENSIONS = ".txt,.md,.markdown,.rtf,.docx";
+
+/** Limpa resíduos de RTF/markdown já gravados (só exibição; não altera o banco). */
+export function cleanJournalText(input: string | null | undefined): string {
+  if (!input) return "";
+  return input
+    .replace(/\\'([0-9a-f]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)))
+    .replace(/\\\*\\?[a-z]*\\?/gi, " ")
+    .replace(/\\[a-z]+-?\d*/gi, " ")
+    .replace(/\b(?:eftab\d+|tightenfactor\d+|pardirnatural|partightenfactor\d*)\b/gi, " ")
+    .replace(/\\(?=\s|$)/g, "")
+    .replace(/[{}]/g, "")
+    .replace(/^\s*[\\*\s]+\s*$/gm, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+export function cleanJournalTitle(title: string | null | undefined): string {
+  const t = cleanJournalText(title);
+  return /[a-zà-ú]{3,}/i.test(t) && t.length <= 120 ? t : "";
+}
