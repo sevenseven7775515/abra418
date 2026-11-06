@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { Upload, X } from "lucide-react";
+import { Cloud, Upload, X } from "lucide-react";
+import { fetchDriveFile, listNewDriveDiaries } from "@/lib/drive.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,8 @@ type Props = { userId: string | null; onDone: () => void; onClose: () => void };
 
 export function JournalImport({ userId, onDone, onClose }: Props) {
   const process = useServerFn(processJournalEntries);
+  const listDrive = useServerFn(listNewDriveDiaries);
+  const getDriveFile = useServerFn(fetchDriveFile);
   const inputRef = useRef<HTMLInputElement>(null);
   const withAi = true;
   const integrate = true;
@@ -18,9 +21,35 @@ export function JournalImport({ userId, onDone, onClose }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [log, setLog] = useState<string[]>([]);
 
-  async function run(files: FileList | null) {
-    if (!files?.length || !userId || busy) return;
+  async function fromDrive() {
+    if (!userId || busy) return;
     setBusy(true); setError(null); setLog([]);
+    try {
+      setStatus("Procurando diários novos no Google Drive…");
+      const { total, fresh } = await listDrive();
+      if (!fresh.length) { setStatus(`Nada novo: ${total} arquivo(s) na pasta, todos já importados.`); setBusy(false); return; }
+      const files: File[] = [];
+      for (let i = 0; i < fresh.length; i += 1) {
+        const f = fresh[i]!;
+        setStatus(`Baixando do Drive… ${i + 1}/${fresh.length}`);
+        try {
+          const { base64 } = await getDriveFile({ data: { id: f.id, mimeType: f.mimeType } });
+          const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+          const name = /\.(txt|md|markdown|rtf|docx)$/i.test(f.name) ? f.name : `${f.name}.txt`;
+          files.push(new File([bytes], name, { lastModified: Date.parse(f.modifiedTime) || Date.now() }));
+        } catch { setLog((l) => [...l, `Falhou ao baixar: ${f.name}`]); }
+      }
+      setBusy(false);
+      await run(files);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Falha ao ler o Google Drive.");
+      setBusy(false);
+    }
+  }
+
+  async function run(files: FileList | File[] | null) {
+    if (!files?.length || !userId) return;
+    setBusy(true); setError(null);
     const list = Array.from(files);
     const ids: string[] = [];
     let skipped = 0;
@@ -96,6 +125,9 @@ export function JournalImport({ userId, onDone, onClose }: Props) {
 
       <Button className="mt-4 font-semibold glow-neon" disabled={busy || !userId} onClick={() => inputRef.current?.click()}>
         <Upload className="h-4 w-4" /> {busy ? "Processando…" : "Escolher arquivos"}
+      </Button>
+      <Button variant="outline" className="ml-2 mt-4" disabled={busy || !userId} onClick={fromDrive}>
+        <Cloud className="h-4 w-4" /> Buscar no Google Drive
       </Button>
 
       {status && <p className="mt-3 text-sm text-primary">{status}</p>}
