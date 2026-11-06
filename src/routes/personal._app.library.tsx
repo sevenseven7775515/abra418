@@ -87,13 +87,12 @@ function LibraryPage() {
   return (
     <PersonalShell
       title="Biblioteca"
-      subtitle="Livros, leitura em andamento e aprendizados."
-      actions={<Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Livro</Button>}
+      subtitle="Só os livros citados nos seus diários."
     >
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
-        <Stat label="Total" value={books.length} />
-        <Stat label="Lendo" value={books.filter((b) => b.status === "lendo").length} />
-        <Stat label="Concluídos" value={books.filter((b) => b.status === "concluido").length} />
+        <Stat label="Citados" value={books.length} />
+        <Stat label="Em leitura" value={books.filter((b) => b.status === "lendo").length} />
+        <Stat label="Terminados" value={books.filter((b) => b.status === "concluido").length} />
       </div>
 
       {open && (
@@ -120,7 +119,7 @@ function LibraryPage() {
       <Chips items={STATUSES} value={status} onChange={setStatus} labels={LABEL} />
 
       <div className="grid gap-3 md:grid-cols-2">
-        {filtered.length === 0 && <div className="md:col-span-2"><Empty>Nenhum livro cadastrado.</Empty></div>}
+        {filtered.length === 0 && <div className="md:col-span-2"><Empty>Nenhum livro citado nos diários.</Empty></div>}
         {filtered.map((b) => (
           <article key={b.id} className="panel flex gap-4 p-4">
             {b.cover_url && <img src={b.cover_url} alt={`Capa do livro ${b.title}`} loading="lazy" className="h-24 w-16 shrink-0 rounded object-cover" />}
@@ -130,23 +129,7 @@ function LibraryPage() {
                   <p className="font-semibold">{b.title}</p>
                   <p className="text-xs text-muted-foreground">{b.author || "Autor desconhecido"}{b.category ? ` · ${b.category}` : ""}</p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => remove.mutate(b.id)}><Trash2 className="h-4 w-4" /></Button>
-              </div>
-              <div className="mt-2 flex items-center gap-2">
-                <Select
-                  value={b.status}
-                  onChange={(e) => update.mutate({ id: b.id, patch: { status: e.target.value } })}
-                  className="h-8 w-auto"
-                >
-                  {STATUSES.filter((s) => s !== "todos").map((s) => <Opt key={s} value={s}>{LABEL[s]}</Opt>)}
-                </Select>
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <button key={n} type="button" aria-label={`Avaliar com ${n}`} onClick={() => update.mutate({ id: b.id, patch: { rating: n } })}>
-                      <Star className={`h-4 w-4 ${(b.rating ?? 0) >= n ? "fill-primary text-primary" : "text-muted-foreground"}`} />
-                    </button>
-                  ))}
-                </div>
+                <span className="shrink-0 text-[10px] uppercase text-muted-foreground">{LABEL[b.status] ?? b.status}</span>
               </div>
               {b.notes && <p className="mt-2 text-sm text-muted-foreground">{b.notes}</p>}
               {b.learnings && <p className="mt-1 text-xs"><span className="text-primary">Aprendizados:</span> {b.learnings}</p>}
