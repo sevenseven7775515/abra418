@@ -24,7 +24,7 @@ export const deriveProfileFromJournal = createServerFn({ method: "POST" })
       .select("entry_date, summary, insights, achievements, pending, learnings")
       .order("entry_date", { ascending: false })
       .limit(220);
-    const rows = (entries ?? []).filter((e) => e.summary || e.insights || e.achievements);
+    const rows = (entries ?? []).filter((e) => e.summary || e.insights || e.achievements || e.learnings);
     if (rows.length < 5) {
       return { missao: "", missaoEvidencias: [], valores: [], objetivos: [], saved: { mission: false, values: 0, goals: 0 } };
     }
@@ -52,11 +52,15 @@ export const deriveProfileFromJournal = createServerFn({ method: "POST" })
       prompt: JSON.stringify(compact),
     });
     const text = await result.text;
+    console.log("[derive] raw", text.slice(0, 400));
     const s = text.indexOf("{"), e = text.lastIndexOf("}");
     if (s < 0 || e < 0) throw new Error("Resposta da IA em formato inesperado.");
     const raw = JSON.parse(text.slice(s, e + 1)) as Partial<DerivedProfile>;
 
-    const keepEv = (ev: unknown) => (Array.isArray(ev) ? ev.filter((d): d is string => typeof d === "string" && dates.has(d)) : []);
+    const keepEv = (ev: unknown) =>
+      Array.isArray(ev)
+        ? [...new Set(ev.flatMap((d) => (typeof d === "string" ? d.match(/\d{4}-\d{2}-\d{2}/g) ?? [] : [])).filter((d) => dates.has(d)))]
+        : [];
     const valores = (raw.valores ?? []).map((v) => ({ ...v, evidencias: keepEv(v.evidencias) })).filter((v) => v.titulo && v.evidencias.length > 0);
     const objetivos = (raw.objetivos ?? [])
       .map((o) => ({ ...o, horizonte: (["curto", "medio", "longo"].includes(o.horizonte) ? o.horizonte : "medio") as "curto" | "medio" | "longo", evidencias: keepEv(o.evidencias) }))
