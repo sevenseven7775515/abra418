@@ -11,8 +11,8 @@ type Props = { userId: string | null; onDone: () => void; onClose: () => void };
 export function JournalImport({ userId, onDone, onClose }: Props) {
   const process = useServerFn(processJournalEntries);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [withAi, setWithAi] = useState(true);
-  const [integrate, setIntegrate] = useState(true);
+  const withAi = true;
+  const integrate = true;
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -76,24 +76,13 @@ export function JournalImport({ userId, onDone, onClose }: Props) {
     <section className="panel mb-6 p-5">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="font-bold">Importar Diário Histórico</h2>
+          <h2 className="font-bold">Enviar diário</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Selecione vários arquivos (TXT, MD, RTF, DOCX). A data é detectada no nome ou no texto, os
-            acontecimentos são extraídos e classificados automaticamente.
+            Escolha os arquivos (TXT, MD, RTF, DOCX). O sistema lê sozinho: humor, energia, contas, dívidas,
+            onde melhorar e livros terminados.
           </p>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose} disabled={busy}><X className="h-4 w-4" /></Button>
-      </div>
-
-      <div className="mt-4 flex flex-wrap items-center gap-4 text-sm">
-        <label className="flex items-center gap-2">
-          <input type="checkbox" checked={withAi} onChange={(e) => setWithAi(e.target.checked)} disabled={busy} />
-          Analisar com IA (humor, energia, eventos, tags)
-        </label>
-        <label className="flex items-center gap-2">
-          <input type="checkbox" checked={integrate} onChange={(e) => setIntegrate(e.target.checked)} disabled={busy || !withAi} />
-          Alimentar Práticas, Segundo Cérebro e Biblioteca
-        </label>
       </div>
 
       <input

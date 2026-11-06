@@ -1001,6 +1001,45 @@ export type Database = {
           },
         ]
       }
+      journal_signals: {
+        Row: {
+          amount: number | null
+          created_at: string
+          description: string
+          due_date: string | null
+          entry_date: string
+          id: string
+          journal_id: string
+          kind: string
+          resolved: boolean
+          user_id: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string
+          description: string
+          due_date?: string | null
+          entry_date: string
+          id?: string
+          journal_id: string
+          kind: string
+          resolved?: boolean
+          user_id: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string
+          description?: string
+          due_date?: string | null
+          entry_date?: string
+          id?: string
+          journal_id?: string
+          kind?: string
+          resolved?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       life_goals: {
         Row: {
           created_at: string
