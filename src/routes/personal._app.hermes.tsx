@@ -80,13 +80,11 @@ function HermesPage() {
           {!s ? (
             <p className="mt-2 text-sm text-muted-foreground">Carregando…</p>
           ) : (
-            <div className="mt-3 grid grid-cols-2 gap-2 text-center text-[11px] text-muted-foreground sm:grid-cols-3 lg:grid-cols-6">
+            <div className="mt-3 grid grid-cols-2 gap-2 text-center text-[11px] text-muted-foreground sm:grid-cols-3 lg:grid-cols-4">
               {[
                 ["Energia", s.estado.energia === null ? "—" : `${s.estado.energia}%`],
                 ["Humor", s.estado.humor === null ? "—" : `${s.estado.humor}%`],
-                ["Produtividade", s.estado.produtividade === null ? "—" : `${s.estado.produtividade}%`],
-                ["Disciplina", s.estado.disciplina === null ? "—" : `${s.estado.disciplina}%`],
-                ["Sequência", `${s.estado.sequenciaPraticas}d`],
+                ["Dias escritos (30d)", String(s.diario.diasEscritos30)],
                 ["Último diário", s.estado.ultimoDiario ? dateBR(s.estado.ultimoDiario) : "—"],
               ].map(([label, value]) => (
                 <div key={label} className="rounded-xl border border-border bg-secondary/40 px-2 py-3">
@@ -101,46 +99,6 @@ function HermesPage() {
         <HermesDirection snapshot={s} />
         <CommercialEngine snapshot={s} />
         <StalledItems snapshot={s} />
-
-        <section className="panel p-5">
-          <header className="flex flex-wrap items-center justify-between gap-3 pb-4">
-            <h2 className="flex items-center gap-2 text-sm font-semibold tracking-wide"><Sparkles className="h-4 w-4 text-primary" /> Briefing</h2>
-            <div className="flex items-center gap-2">
-              <Chips items={KINDS} value={kind} onChange={setKind} labels={{ diario: "Diário", semanal: "Semanal" }} />
-              <Button onClick={generate} disabled={busy} size="sm" className="mb-6 font-semibold">
-                <RefreshCw className="h-4 w-4" /> {busy ? "Gerando…" : "Gerar"}
-              </Button>
-            </div>
-          </header>
-
-          {brief ? (
-            <div className="grid gap-3 text-sm">
-              <p className="text-muted-foreground">{brief.estado}</p>
-              <p className="font-semibold">Foco: {brief.foco}</p>
-              {brief.prioridades.map((p) => (
-                <div key={p.titulo} className="rounded-xl border border-border bg-secondary/30 px-3 py-2">
-                  <p className="font-medium">{p.titulo}</p>
-                  <p className="text-xs text-muted-foreground">{p.motivo}</p>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Evidências: {p.evidencias.join(" · ") || "—"}</p>
-                </div>
-              ))}
-              <p className="text-xs text-muted-foreground">Comercial: {brief.comercial}</p>
-              <p className="text-xs text-muted-foreground">Pessoal: {brief.pessoal}</p>
-              {brief.comparativo && <p className="text-xs text-muted-foreground">Comparativo: {brief.comparativo}</p>}
-              {brief.semDados?.map((d) => <p key={d} className="text-xs text-destructive">{d}</p>)}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Nenhum briefing nesta sessão. Gere um — ele é criado sob demanda, nunca automaticamente.
-            </p>
-          )}
-
-          {(briefs.data?.length ?? 0) > 0 && (
-            <p className="mt-4 text-xs text-muted-foreground">
-              {briefs.data!.length} briefing(s) salvos · último em {dateBR(briefs.data![0]!.ref_date)}
-            </p>
-          )}
-        </section>
 
         <section className="panel p-5">
           <h2 className="text-sm font-semibold tracking-wide">Perguntar ao Hermes</h2>

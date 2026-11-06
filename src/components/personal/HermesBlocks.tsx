@@ -1,10 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AlertTriangle, Briefcase, Clock, Compass, Target } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
 import { money, dateBR } from "@/components/personal/kit";
-import { getHermesSnapshot, listSuggestions, updateSuggestion } from "@/lib/hermes.functions";
+import { getHermesSnapshot } from "@/lib/hermes.functions";
 import { STAGE_LABEL, type DealStage } from "@/lib/pipeline";
 import type { HermesSnapshot } from "@/lib/hermes-context";
 
@@ -23,26 +22,7 @@ export function NoData({ children }: { children: React.ReactNode }) {
 
 /** Bloco 1 — Direção do Hermes: foco, 3 prioridades com evidência e sugestões acionáveis. */
 export function HermesDirection({ snapshot, compact = false }: { snapshot: HermesSnapshot | undefined; compact?: boolean }) {
-  const qc = useQueryClient();
-  const listFn = useServerFn(listSuggestions);
-  const updateFn = useServerFn(updateSuggestion);
-
-  const suggestions = useQuery({
-    queryKey: ["hermes-suggestions"],
-    queryFn: () => listFn({ data: undefined as never }),
-  });
-
-  const act = useMutation({
-    mutationFn: (vars: { id: string; status: "aceita" | "recusada" | "adiada" }) =>
-      updateFn({ data: { ...vars, createTask: vars.status === "aceita" } }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["hermes-suggestions"] });
-      qc.invalidateQueries({ queryKey: ["dashboard"] });
-    },
-  });
-
   const top = snapshot?.prioridades.slice(0, 3) ?? [];
-
   return (
     <section className="panel p-5">
       <header className="flex items-center justify-between gap-2 pb-4">
@@ -52,56 +32,32 @@ export function HermesDirection({ snapshot, compact = false }: { snapshot: Herme
         </div>
         {compact && <Link to="/personal/hermes" className="text-xs text-primary hover:underline">Abrir Hermes →</Link>}
       </header>
-
       {!snapshot ? (
-        <NoData>Calculando o contexto…</NoData>
+        <NoData>Lendo seus diários…</NoData>
       ) : top.length === 0 ? (
-        <NoData>Não há dados suficientes registrados para recomendar uma ação. Cadastre oportunidades em Negócios ou use a Captura.</NoData>
+        <NoData>Seus diários recentes não apontam nada urgente.</NoData>
       ) : (
         <>
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Foco agora</p>
           <p className="mt-1 text-lg font-bold leading-snug">{top[0]!.titulo}</p>
           <p className="mt-1 text-sm text-muted-foreground">{top[0]!.motivo}</p>
-
-          <ol className="mt-4 grid gap-2">
-            {top.map((p, i) => (
-              <li key={p.id} className="rounded-xl border border-border bg-secondary/30 px-3 py-2.5">
-                <div className="flex items-start gap-3">
-                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-primary/15 text-xs font-bold text-primary">{i + 1}</span>
+          {top.length > 1 && (
+            <ol className="mt-4 grid gap-2">
+              {top.slice(1).map((p, i) => (
+                <li key={p.id} className="flex items-start gap-3 rounded-xl border border-border bg-secondary/30 px-3 py-2.5">
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-lg bg-primary/15 text-xs font-bold text-primary">{i + 2}</span>
                   <div className="min-w-0">
                     <p className="text-sm font-medium">{p.titulo}</p>
                     <p className="text-xs text-muted-foreground">{p.motivo}</p>
-                    <p className="mt-1 text-[11px] text-muted-foreground">
-                      Evidências: {p.evidencias.map((e) => `${e.tipo}: ${e.ref}${e.data ? ` (${dateBR(e.data)})` : ""}`).join(" · ") || "—"}
-                    </p>
                   </div>
-                  <span className="ml-auto shrink-0 rounded-full border border-border px-2 py-0.5 text-[10px] uppercase text-muted-foreground">{p.dominio}</span>
-                </div>
-              </li>
-            ))}
-          </ol>
+                </li>
+              ))}
+            </ol>
+          )}
+          <p className="mt-3 text-[11px] text-muted-foreground">
+            Fonte: {[...new Set(top.flatMap((p) => p.evidencias.map((e) => `${e.tipo}${e.data ? ` ${dateBR(e.data)}` : ""}`)))].join(" · ")}
+          </p>
         </>
-      )}
-
-      {(suggestions.data?.length ?? 0) > 0 && (
-        <div className="mt-5">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Sugestões pendentes</p>
-          <ul className="mt-2 grid gap-2">
-            {suggestions.data!.map((s) => (
-              <li key={s.id} className="rounded-xl border border-border bg-secondary/20 px-3 py-2.5">
-                <p className="text-sm font-medium">{s.title}</p>
-                {s.rationale && <p className="text-xs text-muted-foreground">{s.rationale}</p>}
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Button size="sm" className="h-7 text-xs font-semibold" disabled={act.isPending} onClick={() => act.mutate({ id: s.id, status: "aceita" })}>
-                    Aceitar (cria tarefa)
-                  </Button>
-                  <Button size="sm" variant="secondary" className="h-7 text-xs" disabled={act.isPending} onClick={() => act.mutate({ id: s.id, status: "adiada" })}>Adiar</Button>
-                  <Button size="sm" variant="ghost" className="h-7 text-xs" disabled={act.isPending} onClick={() => act.mutate({ id: s.id, status: "recusada" })}>Recusar</Button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
       )}
     </section>
   );
@@ -115,13 +71,13 @@ export function CommercialEngine({ snapshot }: { snapshot: HermesSnapshot | unde
       <header className="flex items-center justify-between gap-2 pb-4">
         <div className="flex items-center gap-2">
           <Briefcase className="h-4 w-4 text-primary" />
-          <h2 className="text-sm font-semibold tracking-wide">Motor comercial</h2>
+          <h2 className="text-sm font-semibold tracking-wide">Trabalho</h2>
         </div>
         <Link to="/personal/business" className="text-xs text-primary hover:underline">Abrir Negócios →</Link>
       </header>
 
       {!c || c.totalOportunidades === 0 ? (
-        <NoData>Nenhuma oportunidade registrada. Cadastre a primeira em Negócios → Pipeline para o motor comercial funcionar.</NoData>
+        <DiaryWork snapshot={snapshot} />
       ) : (
         <>
           <div className="grid grid-cols-2 gap-2 text-center text-[11px] text-muted-foreground lg:grid-cols-4">
@@ -165,13 +121,28 @@ export function CommercialEngine({ snapshot }: { snapshot: HermesSnapshot | unde
   );
 }
 
+/** Trabalho relatado nos diários (últimos 45 dias). */
+export function DiaryWork({ snapshot }: { snapshot: HermesSnapshot | undefined }) {
+  const w = snapshot?.diario.trabalho ?? [];
+  if (!snapshot) return <NoData>Lendo seus diários…</NoData>;
+  if (w.length === 0) return <NoData>Nenhum trabalho relatado nos diários dos últimos 45 dias.</NoData>;
+  return (
+    <ul className="grid gap-1.5 text-sm">
+      {w.slice(0, 6).map((t, i) => (
+        <li key={i} className="flex gap-3"><span className="w-12 shrink-0 text-xs text-muted-foreground">{dateBR(t.data).slice(0, 5)}</span><span>{t.texto}</span></li>
+      ))}
+    </ul>
+  );
+}
+
 /** Itens parados em qualquer frente. */
 export function StalledItems({ snapshot }: { snapshot: HermesSnapshot | undefined }) {
   const o = snapshot?.operacional;
   const items = [
     ...(snapshot?.comercial.criticos ?? []).map((c) => `${c.titulo} — ${c.problema}`),
     ...(o && o.tarefasAtrasadas ? [`${o.tarefasAtrasadas} tarefa(s) com prazo vencido`] : []),
-    ...(o && o.capturasPendentes ? [`${o.capturasPendentes} captura(s) não processada(s)`] : []),
+    ...(snapshot?.diario.contas ?? []).map((c) => `${c.texto}${c.vence ? ` — vence ${dateBR(c.vence)}` : ""}`),
+    ...(snapshot?.diario.melhorias ?? []).filter((m) => m.vezes >= 2).map((m) => `${m.texto} (repetido ${m.vezes}× no diário)`),
     ...(snapshot?.estado.diasDesdeUltimoDiario && snapshot.estado.diasDesdeUltimoDiario >= 3
       ? [`${snapshot.estado.diasDesdeUltimoDiario} dias sem registro no diário`]
       : []),
@@ -183,7 +154,7 @@ export function StalledItems({ snapshot }: { snapshot: HermesSnapshot | undefine
         <Target className="h-4 w-4 text-primary" />
         <h2 className="text-sm font-semibold tracking-wide">O que está parado</h2>
       </header>
-      {items.length === 0 ? <NoData>Nada parado com base nos registros atuais.</NoData> : (
+      {items.length === 0 ? <NoData>Nada parado segundo os diários.</NoData> : (
         <ul className="grid gap-1.5 text-sm text-muted-foreground">
           {items.slice(0, 8).map((t) => <li key={t}>• {t}</li>)}
         </ul>
