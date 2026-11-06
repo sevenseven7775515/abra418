@@ -120,7 +120,6 @@ function PracticesPage() {
     <PersonalShell
       title="Práticas"
       subtitle="Sequência diária, histórico e evolução."
-      actions={<Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Prática</Button>}
     >
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
         <Stat label="Práticas ativas" value={practices.length} />
