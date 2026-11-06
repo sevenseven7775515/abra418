@@ -10,7 +10,7 @@ import { EvolutionReport } from "@/components/personal/EvolutionReport";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Empty, Field, Opt, Select, Stat, dateBR, useUserId } from "@/components/personal/kit";
+import { Empty, Field, Opt, Select, dateBR, useUserId } from "@/components/personal/kit";
 
 export const Route = createFileRoute("/personal/_app/journal")({
   head: () => ({
@@ -102,9 +102,6 @@ function JournalPage() {
       .some((v) => (v ?? "").toLowerCase().includes(term));
   });
 
-  const avgEnergy = entries.length
-    ? Math.round((entries.reduce((s, e) => s + (e.energy ?? 0), 0) / entries.length) * 10) / 10
-    : 0;
 
   return (
     <PersonalShell
