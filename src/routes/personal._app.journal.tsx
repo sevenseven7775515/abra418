@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Empty, Field, Opt, Select, dateBR, useUserId } from "@/components/personal/kit";
+import { cleanJournalText, cleanJournalTitle } from "@/lib/journal-parse";
 
 export const Route = createFileRoute("/personal/_app/journal")({
   head: () => ({
