@@ -15,23 +15,14 @@ export type NavItem = {
 };
 
 export const NAV_ITEMS: NavItem[] = [
-  { essential: true, slug: "dashboard", label: "Dashboard", icon: Home, ready: true },
-  { essential: true, slug: "hermes", label: "Hermes", icon: Compass, ready: true },
-  { essential: true, slug: "capture", label: "Captura", icon: ClipboardPaste, ready: true },
-  { slug: "agenda", label: "Agenda", icon: CalendarDays, ready: true },
-  { slug: "tasks", label: "Tarefas", icon: CheckSquare, ready: true },
-  { slug: "missions", label: "Missões", icon: Target, ready: true },
-  { essential: true, slug: "business", label: "Negócios", icon: Briefcase, ready: true },
-  { essential: true, slug: "finance", label: "Financeiro", icon: Wallet, ready: true },
-  { slug: "shopping", label: "Compras", icon: ShoppingCart, ready: true },
-  { slug: "documents", label: "Documentos", icon: FolderOpen, ready: true },
-  { slug: "brain", label: "Segundo Cérebro", icon: Brain, ready: true },
-  { slug: "library", label: "Biblioteca", icon: Library, ready: true },
+  { essential: true, slug: "dashboard", label: "Início", icon: Home, ready: true },
   { essential: true, slug: "journal", label: "Diário", icon: BookOpen, ready: true },
-  { slug: "cycles", label: "Ciclos", icon: Moon, ready: true },
-  { slug: "practices", label: "Práticas", icon: Flame, ready: true },
+  { essential: true, slug: "finance", label: "Financeiro", icon: Wallet, ready: true },
+  { essential: true, slug: "hermes", label: "Hermes", icon: Compass, ready: true },
+  { essential: true, slug: "timeline", label: "Memória", icon: History, ready: true },
+  { slug: "business", label: "Negócios", icon: Briefcase, ready: true },
   { slug: "patterns", label: "Padrões", icon: Radar, ready: true },
-  { slug: "timeline", label: "Linha do Tempo", icon: History, ready: true },
+  { slug: "cycles", label: "Ciclos", icon: Moon, ready: true },
   { slug: "thelema", label: "Thelema", icon: ScrollText, ready: true },
   { slug: "self", label: "Meu Perfil", icon: UserCircle, ready: true },
   { slug: "map", label: "Meu Mapa", icon: Map, ready: true },
@@ -39,6 +30,21 @@ export const NAV_ITEMS: NavItem[] = [
   { slug: "settings", label: "Configurações", icon: Settings, ready: true },
 ];
 
+/** Memória unificada: abas dentro da mesma área. */
+export const MEMORY_TABS = [
+  { slug: "timeline", label: "Linha do Tempo" },
+  { slug: "brain", label: "Notas" },
+  { slug: "library", label: "Livros" },
+  { slug: "practices", label: "Práticas" },
+];
+
+const HIDDEN_LABELS: Record<string, string> = {
+  agenda: "Agenda", tasks: "Tarefas", missions: "Missões", shopping: "Compras",
+  documents: "Documentos", capture: "Captura", brain: "Segundo Cérebro",
+  library: "Biblioteca", practices: "Práticas",
+};
+
+
 export const MODULE_LABEL: Record<string, string> = Object.fromEntries(
-  NAV_ITEMS.map((item) => [item.slug, item.label]),
+  [...Object.entries(HIDDEN_LABELS), ...NAV_ITEMS.map((item) => [item.slug, item.label])],
 );

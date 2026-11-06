@@ -1,10 +1,10 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import {
-  Bell, Briefcase, Compass, Home, LogOut, Menu, Plus, Wallet, X,
+  Bell, BookOpen, Compass, History, Home, LogOut, Menu, Plus, Wallet, X,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { NAV_ITEMS } from "@/lib/personal-nav";
+import { MEMORY_TABS, NAV_ITEMS } from "@/lib/personal-nav";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DriveAutoSync } from "./DriveAutoSync";
@@ -69,8 +69,9 @@ function Brand() {
 const MOBILE_TABS = [
   { slug: "dashboard", label: "Início", icon: Home },
   { slug: "hermes", label: "Hermes", icon: Compass },
-  { slug: "business", label: "Negócios", icon: Briefcase },
+  { slug: "journal", label: "Diário", icon: BookOpen },
   { slug: "finance", label: "Finanças", icon: Wallet },
+  { slug: "timeline", label: "Memória", icon: History },
 ];
 
 export function PersonalShell({
@@ -148,19 +149,31 @@ export function PersonalShell({
           </div>
         </header>
 
-        <main className="px-4 pb-32 pt-6 sm:px-8 lg:pb-12"><DriveAutoSync />{children}</main>
+        <main className="px-4 pb-32 pt-6 sm:px-8 lg:pb-12"><DriveAutoSync />
+          {MEMORY_TABS.some((t) => pathname === `/personal/${t.slug}`) && (
+            <div className="mb-6 flex gap-1 overflow-x-auto rounded-xl border border-border p-1">
+              {MEMORY_TABS.map((t) => (
+                <Link key={t.slug} to="/personal/$module" params={{ module: t.slug }}
+                  className={cn("whitespace-nowrap rounded-lg px-3 py-1.5 text-xs transition-colors",
+                    pathname === `/personal/${t.slug}` ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}>
+                  {t.label}
+                </Link>
+              ))}
+            </div>
+          )}
+          {children}</main>
       </div>
 
       <Link
         to="/personal/$module"
-        params={{ module: "capture" }}
+        params={{ module: "journal" }}
         className="fixed bottom-24 right-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground glow-neon lg:hidden"
-        aria-label="Capturar rapidamente"
+        aria-label="Enviar diário"
       >
         <Plus className="h-6 w-6" />
       </Link>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
         {MOBILE_TABS.map((tab) => {
           const active = pathname === `/personal/${tab.slug}`;
           return (

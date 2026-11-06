@@ -83,7 +83,6 @@ function BrainPage() {
     <PersonalShell
       title="Segundo Cérebro"
       subtitle="Ideias, estudos, projetos e insights conectados."
-      actions={<Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Nota</Button>}
     >
       <div className="mb-6 grid gap-3 sm:grid-cols-3">
         <Stat label="Notas" value={notes.length} />
