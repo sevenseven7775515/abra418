@@ -1,20 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { RefreshCw, Send, Sparkles } from "lucide-react";
+import { Send } from "lucide-react";
 import { PersonalShell } from "@/components/personal/PersonalShell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Chips, dateBR } from "@/components/personal/kit";
+import { dateBR } from "@/components/personal/kit";
 import { CommercialEngine, HermesDirection, StalledItems, useHermesSnapshot } from "@/components/personal/HermesBlocks";
-import { askHermes, generateBrief, listBriefs, type BriefContent, type HermesAnswer } from "@/lib/hermes.functions";
+import { askHermes, type HermesAnswer } from "@/lib/hermes.functions";
 
 export const Route = createFileRoute("/personal/_app/hermes")({
   head: () => ({
     meta: [
       { title: "Hermes — PERSONAL OS" },
-      { name: "description", content: "Centro de inteligência: estado atual, foco recomendado, prioridades e briefings com evidências." },
+      { name: "description", content: "Centro de inteligência: estado atual, foco recomendado, prioridades." },
       { name: "robots", content: "noindex" },
       { property: "og:title", content: "Hermes — PERSONAL OS" },
       { property: "og:description", content: "Contexto, decisões e direção com base nos seus dados." },
@@ -23,40 +22,14 @@ export const Route = createFileRoute("/personal/_app/hermes")({
   component: HermesPage,
 });
 
-const KINDS = ["diario", "semanal"] as const;
-
 function HermesPage() {
   const snapshot = useHermesSnapshot();
-  const gen = useServerFn(generateBrief);
-  const briefsFn = useServerFn(listBriefs);
   const ask = useServerFn(askHermes);
 
-  const [kind, setKind] = useState<(typeof KINDS)[number]>("diario");
-  const [brief, setBrief] = useState<BriefContent | null>(null);
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState<HermesAnswer | null>(null);
   const [asking, setAsking] = useState(false);
-
-  const briefs = useQuery({
-    queryKey: ["hermes-briefs"],
-    queryFn: () => briefsFn({ data: undefined as never }),
-  });
-
-  const generate = async () => {
-    setBusy(true); setError(null);
-    try {
-      const r = await gen({ data: { kind } });
-      setBrief(r.content);
-      briefs.refetch();
-      snapshot.refetch();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Falha ao gerar o briefing.");
-    } finally {
-      setBusy(false);
-    }
-  };
 
   const send = async () => {
     if (!question.trim()) return;
