@@ -4,6 +4,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 import { analyzePipeline, newContactsSince, todayISO, type DealRow, type PipelineHealth } from "./pipeline";
+import { billsDue, recurringImprovements, type EvoSignal } from "./evolution";
 import { currentStreak, daysAgo, disciplineScore, energyScore, moodScore, productivityScore } from "./personal-insights";
 
 type DB = SupabaseClient<Database>;
@@ -69,6 +70,13 @@ export type HermesSnapshot = {
     praticasRegistradas: number;
     diarioRecente: { entry_date: string; title: string | null; summary: string | null; mood: string | null; energy: number | null }[];
   };
+  diario: {
+    trabalho: { data: string; texto: string }[];
+    pendencias: { data: string; texto: string }[];
+    contas: { id: string; texto: string; valor: number | null; vence: string | null; data: string }[];
+    melhorias: { texto: string; vezes: number; ultima: string }[];
+    diasEscritos30: number;
+  };
   prioridades: Priority[];
   temDadosComerciais: boolean;
   temDadosPessoais: boolean;
@@ -111,6 +119,23 @@ export async function buildHermesSnapshot(supabase: DB): Promise<HermesSnapshot>
     supabase.from("timeline_events").select("id", { count: "exact", head: true }),
     supabase.from("practice_history").select("id", { count: "exact", head: true }),
   ]);
+
+  // ---- Tudo que vem só do diário ----
+  const since45 = daysAgo(45);
+  const [sigRes, workRes, pendRes] = await Promise.all([
+    supabase.from("journal_signals").select("id, kind, description, amount, due_date, entry_date, resolved").eq("resolved", false).order("entry_date", { ascending: false }).limit(300),
+    supabase.from("journal_events").select("description, journal_entries!inner(entry_date)").eq("category", "trabalho").gte("journal_entries.entry_date", since45).limit(400),
+    supabase.from("journal_entries").select("entry_date, pending").not("pending", "is", null).neq("pending", "").order("entry_date", { ascending: false }).limit(3),
+  ]);
+  const signals = (sigRes.data ?? []) as EvoSignal[];
+  const trabalho = ((workRes.data ?? []) as unknown as { description: string; journal_entries: { entry_date: string } }[])
+    .map((w) => ({ data: w.journal_entries.entry_date, texto: w.description }))
+    .sort((a, b) => (a.data < b.data ? 1 : -1));
+  const pendencias = (pendRes.data ?? []).flatMap((e) =>
+    (e.pending ?? "").split(/\n|;|•/).map((t) => t.replace(/^[-*\d.)\s]+/, "").trim()).filter((t) => t.length > 3).map((texto) => ({ data: e.entry_date, texto })),
+  ).slice(0, 8);
+  const contasDiario = billsDue(signals, today, 10);
+  const melhorias = recurringImprovements(signals, 3);
 
   const deals = (dealsRes.data ?? []) as unknown as DealRow[];
   const pipeline: PipelineHealth = analyzePipeline(deals, today);
@@ -232,6 +257,38 @@ export async function buildHermesSnapshot(supabase: DB): Promise<HermesSnapshot>
     });
   }
 
+  for (const c of contasDiario.slice(0, 3)) {
+    const late = c.due_date! < today;
+    prioridades.push({
+      id: `sig-bill-${c.id}`,
+      titulo: `Pagar ${c.description}`,
+      dominio: "operacional",
+      score: late ? 82 : 76,
+      motivo: `${late ? "Venceu" : "Vence"} em ${c.due_date}${c.amount ? ` · R$ ${c.amount}` : ""} — citado no diário.`,
+      evidencias: [{ tipo: "diário", ref: c.description, id: c.id, data: c.entry_date }],
+    });
+  }
+  for (const p of pendencias.slice(0, 3)) {
+    prioridades.push({
+      id: `pend-${p.data}-${p.texto.slice(0, 20)}`,
+      titulo: p.texto,
+      dominio: /client|lead|propost|ads|anúnc|venda|reuni/i.test(p.texto) ? "comercial" : "pessoal",
+      score: 68,
+      motivo: "Pendência escrita no último diário.",
+      evidencias: [{ tipo: "diário", ref: "pendências", data: p.data }],
+    });
+  }
+  for (const m of melhorias.filter((m) => m.n >= 2).slice(0, 1)) {
+    prioridades.push({
+      id: `melhoria-${m.last}`,
+      titulo: m.text,
+      dominio: "pessoal",
+      score: 50 + m.n,
+      motivo: `Ponto de melhoria repetido ${m.n}× nos diários.`,
+      evidencias: [{ tipo: "diário", ref: "melhoria", data: m.last }],
+    });
+  }
+
   const diasSemDiario = lastJournal ? diffDays(lastJournal, today) : null;
   if (diasSemDiario !== null && diasSemDiario >= 3) {
     prioridades.push({
@@ -284,6 +341,13 @@ export async function buildHermesSnapshot(supabase: DB): Promise<HermesSnapshot>
       acontecimentos: timelineCount.count ?? 0,
       praticasRegistradas: practiceHistCount.count ?? 0,
       diarioRecente: journal.slice(0, 7),
+    },
+    diario: {
+      trabalho: trabalho.slice(0, 12),
+      pendencias,
+      contas: contasDiario.map((c) => ({ id: c.id, texto: c.description, valor: c.amount, vence: c.due_date, data: c.entry_date })),
+      melhorias: melhorias.map((m) => ({ texto: m.text, vezes: m.n, ultima: m.last })),
+      diasEscritos30: journal.filter((j) => j.entry_date > daysAgo(30)).length,
     },
     prioridades: prioridades.slice(0, 12),
     temDadosComerciais: pipeline.total > 0,
