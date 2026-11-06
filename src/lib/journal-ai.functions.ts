@@ -169,8 +169,8 @@ export const processJournalEntries = createServerFn({ method: "POST" })
         const map = new Map((existing ?? []).map((b) => [b.title.toLowerCase(), b.id]));
         for (const b of finished.slice(0, 10)) {
           const id = map.get(b.titulo.toLowerCase());
-          if (id) await supabase.from("books").update({ status: "lido" }).eq("id", id);
-          else await supabase.from("books").insert({ user_id: userId, title: b.titulo, author: b.autor, category: "geral", status: "lido" });
+          if (id) await supabase.from("books").update({ status: "concluido" }).eq("id", id);
+          else await supabase.from("books").insert({ user_id: userId, title: b.titulo, author: b.autor, category: "geral", status: "concluido" });
         }
       }
       if (notes.length) await supabase.from("brain_notes").insert(notes.slice(0, 8));
