@@ -231,3 +231,17 @@ export const askMyPast = createServerFn({ method: "POST" })
 
     return { answer: await result.text };
   });
+
+/** IDs de diários importados que ainda não passaram pela leitura automática. */
+export const listUnanalyzedJournals = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context;
+    const [{ data: entries, error: e1 }, { data: done, error: e2 }] = await Promise.all([
+      supabase.from("journal_entries").select("id").eq("imported", true).order("entry_date", { ascending: false }).limit(2000),
+      supabase.from("journal_insights").select("journal_id").limit(5000),
+    ]);
+    if (e1 || e2) throw new Error((e1 ?? e2)!.message);
+    const seen = new Set((done ?? []).map((d) => d.journal_id));
+    return { ids: (entries ?? []).map((e) => e.id).filter((id) => !seen.has(id)) };
+  });

@@ -3,8 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { Cloud } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchDriveFile, listNewDriveDiaries } from "@/lib/drive.functions";
-import { processJournalEntries } from "@/lib/journal-ai.functions";
-import { LAST_SYNC_KEY, syncDrive } from "@/lib/drive-sync";
+import { listUnanalyzedJournals, processJournalEntries } from "@/lib/journal-ai.functions";
+import { LAST_SYNC_KEY, analyzePending, syncDrive } from "@/lib/drive-sync";
 
 const INTERVAL_MS = 6 * 60 * 60 * 1000; // no máximo a cada 6 horas
 let running = false; // evita duas sincronizações ao trocar de página
@@ -14,6 +14,7 @@ export function DriveAutoSync() {
   const listDrive = useServerFn(listNewDriveDiaries);
   const getFile = useServerFn(fetchDriveFile);
   const process = useServerFn(processJournalEntries);
+  const listPending = useServerFn(listUnanalyzedJournals);
   const [msg, setMsg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,15 +26,20 @@ export function DriveAutoSync() {
         const { data } = await supabase.auth.getUser();
         if (!data.user) return;
         const r = await syncDrive({ userId: data.user.id, listDrive, getFile, process, onStatus: (s) => setMsg(s) });
-        localStorage.setItem(LAST_SYNC_KEY, String(Date.now()));
-        if (!r.saved) { setMsg(null); return; }
-        setMsg(`${r.saved} diário(s) novo(s) do Drive lidos.${r.aiStopped ? ` ${r.aiStopped}` : ""}`);
+        const { ids } = r.aiStopped ? { ids: [] as string[] } : await listPending();
+        const p = await analyzePending(ids, { process, onStatus: (s) => setMsg(s) });
+        const pendingLeft = ids.length - p.analyzed;
+        // só marca como sincronizado quando não sobrou nada pendente
+        if (pendingLeft <= 0) localStorage.setItem(LAST_SYNC_KEY, String(Date.now()));
+        if (!r.saved && !p.analyzed) { setMsg(null); return; }
+        const stop = r.aiStopped ?? p.aiStopped;
+        setMsg(`Diário atualizado: ${r.saved} novo(s) do Drive, ${p.analyzed} lido(s) pela IA.${stop ? ` ${stop}` : ""}`);
         setTimeout(() => setMsg(null), 8000);
       } catch {
         setMsg(null); // falha silenciosa; tenta de novo na próxima janela
       } finally { running = false; }
     })();
-  }, [listDrive, getFile, process]);
+  }, [listDrive, getFile, process, listPending]);
 
   if (!msg) return null;
   return (

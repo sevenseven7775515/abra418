@@ -14,6 +14,24 @@ export type SyncResult = { total: number; saved: number; failed: string[]; aiSto
 
 export const LAST_SYNC_KEY = "personal.drive.lastSync";
 
+/** Lê com IA diários já salvos mas ainda não analisados (retomada após interrupção). */
+export async function analyzePending(
+  ids: string[], d: Pick<SyncDeps, "process" | "onStatus">, max = 40,
+): Promise<{ analyzed: number; aiStopped?: string }> {
+  const todo = ids.slice(0, max);
+  let analyzed = 0;
+  for (let i = 0; i < todo.length; i += 5) {
+    d.onStatus?.(`Lendo diários pendentes… ${Math.min(i + 5, todo.length)}/${todo.length}`);
+    try { await d.process({ data: { ids: todo.slice(i, i + 5), integrate: true } }); analyzed += todo.slice(i, i + 5).length; }
+    catch (e) {
+      const msg = e instanceof Error ? e.message : "";
+      if (msg.includes("402")) return { analyzed, aiStopped: "Créditos de IA esgotados." };
+      if (msg.includes("429")) return { analyzed, aiStopped: "Limite de IA atingido — continua mais tarde." };
+    }
+  }
+  return { analyzed };
+}
+
 export async function importFiles(files: File[], d: Omit<SyncDeps, "listDrive" | "getFile">): Promise<SyncResult> {
   const ids: string[] = [];
   const failed: string[] = [];
