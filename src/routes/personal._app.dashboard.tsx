@@ -61,6 +61,7 @@ function ScoreBar({ label, value }: { label: string; value: number | null }) {
 
 function DashboardPage() {
   const [now, setNow] = useState(() => new Date());
+  const [showMore, setShowMore] = useState(false);
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(t);
@@ -223,6 +224,14 @@ function DashboardPage() {
         <StalledItems snapshot={hermes.data} />
       </div>
 
+      <button
+        onClick={() => setShowMore((v) => !v)}
+        className="mb-4 w-full rounded-xl border border-border py-2.5 text-xs uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+      >
+        {showMore ? "Ocultar o secundário" : "Ver o secundário (histórico, hoje, módulos)"}
+      </button>
+
+      {showMore && (<>
       <section className="panel mb-4 p-5">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">Base histórica</p>
         <div className="mt-3 grid grid-cols-2 gap-2 text-center text-[11px] text-muted-foreground sm:grid-cols-3 lg:grid-cols-6">
@@ -426,6 +435,7 @@ function DashboardPage() {
           <Link to="/personal/brain" className="mt-4 inline-block text-xs text-primary hover:underline">Abrir Segundo Cérebro →</Link>
         </Panel>
       </div>
+      </>)}
     </PersonalShell>
   );
 }

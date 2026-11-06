@@ -10,22 +10,24 @@ export type NavItem = {
   label: string;
   icon: LucideIcon;
   ready?: boolean;
+  /** Essencial: sempre visível. O resto fica em "Mais". */
+  essential?: boolean;
 };
 
 export const NAV_ITEMS: NavItem[] = [
-  { slug: "dashboard", label: "Dashboard", icon: Home, ready: true },
-  { slug: "hermes", label: "Hermes", icon: Compass, ready: true },
-  { slug: "capture", label: "Captura", icon: ClipboardPaste, ready: true },
+  { essential: true, slug: "dashboard", label: "Dashboard", icon: Home, ready: true },
+  { essential: true, slug: "hermes", label: "Hermes", icon: Compass, ready: true },
+  { essential: true, slug: "capture", label: "Captura", icon: ClipboardPaste, ready: true },
   { slug: "agenda", label: "Agenda", icon: CalendarDays, ready: true },
   { slug: "tasks", label: "Tarefas", icon: CheckSquare, ready: true },
   { slug: "missions", label: "Missões", icon: Target, ready: true },
-  { slug: "business", label: "Negócios", icon: Briefcase, ready: true },
-  { slug: "finance", label: "Financeiro", icon: Wallet, ready: true },
+  { essential: true, slug: "business", label: "Negócios", icon: Briefcase, ready: true },
+  { essential: true, slug: "finance", label: "Financeiro", icon: Wallet, ready: true },
   { slug: "shopping", label: "Compras", icon: ShoppingCart, ready: true },
   { slug: "documents", label: "Documentos", icon: FolderOpen, ready: true },
   { slug: "brain", label: "Segundo Cérebro", icon: Brain, ready: true },
   { slug: "library", label: "Biblioteca", icon: Library, ready: true },
-  { slug: "journal", label: "Diário", icon: BookOpen, ready: true },
+  { essential: true, slug: "journal", label: "Diário", icon: BookOpen, ready: true },
   { slug: "cycles", label: "Ciclos", icon: Moon, ready: true },
   { slug: "practices", label: "Práticas", icon: Flame, ready: true },
   { slug: "patterns", label: "Padrões", icon: Radar, ready: true },
