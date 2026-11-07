@@ -13,6 +13,7 @@ import { ENNEAGRAM_ASPECTS, ENNEAGRAM_QUESTIONS, scoreEnneagram } from "@/lib/en
 import { natalReading } from "@/lib/natal";
 import { deriveProfileFromJournal } from "@/lib/profile-derive.functions";
 import { cn } from "@/lib/utils";
+import { SaturnDiary } from "@/components/personal/SaturnDiary";
 
 export const Route = createFileRoute("/personal/_app/map")({
   head: () => ({
@@ -61,6 +62,7 @@ function MapPage() {
   return (
     <PersonalShell title="Meu Mapa" subtitle="Testes rápidos e o que o seu diário revela sobre você.">
       <div className="grid gap-4 lg:grid-cols-2">
+        <SaturnDiary />
         <FromJournal data={data} onDone={() => qc.invalidateQueries({ queryKey: ["personal-map"] })} />
         <NatalTest birthAt={data?.profile?.birth_at ?? null} userId={userId} onSaved={() => qc.invalidateQueries({ queryKey: ["personal-map"] })} />
         <div className="lg:col-span-2">
