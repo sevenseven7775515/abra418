@@ -1,6 +1,6 @@
 # PERSONAL OS — Hermes + Motor Comercial
 
-- [ ] Saturno 2026 no Meu Mapa: confirmar datas, comparar fases com relatos existentes, apresentar contexto simbólico e validar com testes e acesso real.
+- [x] Saturno 2026 no Meu Mapa: datas confirmadas, comparação com relatos existentes, contexto simbólico; 9 testes passaram e acesso autenticado validado em computador e celular.
 
 - [x] 1. Migração aditiva: captures, deals, deal_events, contacts, hermes_briefs, hermes_suggestions (RLS, grants, índices, triggers) + tasks.origin/origin_id
 - [x] 2. src/lib/pipeline.ts — regras comerciais determinísticas
