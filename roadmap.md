@@ -1,5 +1,7 @@
 # PERSONAL OS — Hermes + Motor Comercial
 
+- [ ] Livros: cruzar histórico sem reprocessar diários, consolidar duplicatas e comprovar conclusões com datas e evidências; testar lista real.
+
 - [x] Saturno 2026 no Meu Mapa: datas confirmadas, comparação com relatos existentes, contexto simbólico; 9 testes passaram e acesso autenticado validado em computador e celular.
 
 - [x] 1. Migração aditiva: captures, deals, deal_events, contacts, hermes_briefs, hermes_suggestions (RLS, grants, índices, triggers) + tasks.origin/origin_id
