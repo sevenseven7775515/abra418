@@ -64,10 +64,10 @@ export function parseNubankStatement(text: string): StatementTx[] {
   let buf: string[] = [];
   for (let l of lines) {
     const dm = l.match(DAY);
-    if (dm) { date = `${dm[3]}-${MONTHS[dm[2]]}-${dm[1]}`; l = dm[4].trim(); buf = []; if (!l) continue; }
+    if (dm) { date = `${dm[3]}-${MONTHS[dm[2] ?? ""]}-${dm[1]}`; l = (dm[4] ?? "").trim(); buf = []; if (!l) continue; }
     if (TOTAL.test(l)) { kind = l.includes("entradas") ? "receita" : "despesa"; buf = []; continue; }
     const m = l.match(MONEY);
-    if (m && date && kind) {
+    if (m && m[1] && date && kind) {
       const head = l.slice(0, l.length - m[1].length).trim();
       const desc = tidy([...buf, head].join(" "));
       buf = [];
