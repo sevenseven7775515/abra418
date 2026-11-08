@@ -71,7 +71,7 @@ export const importStatement = createServerFn({ method: "POST" })
       recurrence: "extrato",
       paid: true,
       scope: data.account === "pj" ? "empresa" : "pessoal",
-      source_ref: refs[i],
+      source_ref: refs[i] ?? null,
       source_file: data.name,
     }));
     let inserted = 0;
