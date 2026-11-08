@@ -649,6 +649,8 @@ export type Database = {
           paid: boolean
           recurrence: string
           scope: string
+          source_file: string | null
+          source_ref: string | null
           tx_date: string
           updated_at: string
           user_id: string
@@ -664,6 +666,8 @@ export type Database = {
           paid?: boolean
           recurrence?: string
           scope?: string
+          source_file?: string | null
+          source_ref?: string | null
           tx_date?: string
           updated_at?: string
           user_id: string
@@ -679,6 +683,8 @@ export type Database = {
           paid?: boolean
           recurrence?: string
           scope?: string
+          source_file?: string | null
+          source_ref?: string | null
           tx_date?: string
           updated_at?: string
           user_id?: string

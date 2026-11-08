@@ -34,8 +34,25 @@ const PERIOD_LABEL = { mes: "Mês atual", trimestre: "3 meses", ano: "Ano", tudo
 
 type Tx = {
   id: string; kind: string; description: string; category: string; amount: number;
-  tx_date: string; recurrence: string; due_date: string | null; paid: boolean;
+  tx_date: string; recurrence: string; due_date: string | null; paid: boolean; scope: string;
 };
+
+/** Resumo real dos extratos (últimos 6 meses), sem contar aplicações/resgates RDB. */
+function bankSummary(rows: Tx[]) {
+  const bankRows = rows.filter((r) => r.recurrence === "extrato" && r.category !== "investimentos");
+  const months: string[] = [];
+  for (let i = 5; i >= 0; i--) { const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i); months.push(d.toISOString().slice(0, 7)); }
+  const by = (scope: string) => months.map((m) => {
+    const rs = bankRows.filter((r) => r.scope === scope && r.tx_date.startsWith(m));
+    return { m, in: rs.filter((r) => r.kind === "receita").reduce((s, r) => s + r.amount, 0), out: rs.filter((r) => r.kind === "despesa").reduce((s, r) => s + r.amount, 0) };
+  });
+  const cur = months[months.length - 1]!;
+  const cats = new Map<string, number>();
+  bankRows.filter((r) => r.scope === "pessoal" && r.kind === "despesa" && r.tx_date.startsWith(cur)).forEach((r) => cats.set(r.category, (cats.get(r.category) ?? 0) + r.amount));
+  const last = bankRows.reduce((d, r) => (r.tx_date > d ? r.tx_date : d), "");
+  return { count: bankRows.length, pf: by("pessoal"), pj: by("empresa"), cats: [...cats.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5), last };
+}
+const MONTH_LABEL = (m: string) => new Date(`${m}-15`).toLocaleDateString("pt-BR", { month: "short", year: "2-digit" });
 
 const emptyForm = {
   kind: "despesa", description: "", category: "outros", amount: "",
@@ -62,9 +79,19 @@ function FinancePage() {
   const { data: rows = [] } = useQuery({
     queryKey: ["finance"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("finance_transactions").select("*").order("tx_date", { ascending: false });
-      if (error) throw error;
-      return (data ?? []).map((r) => ({ ...r, amount: Number(r.amount) })) as Tx[];
+      // Lançamentos próprios + extratos dos últimos 7 meses (paginado; o banco devolve até 1000 por vez)
+      const own = await supabase.from("finance_transactions").select("*").neq("recurrence", "extrato").order("tx_date", { ascending: false }).limit(1000);
+      if (own.error) throw own.error;
+      const since = new Date(); since.setDate(1); since.setMonth(since.getMonth() - 6);
+      const bank: typeof own.data = [];
+      for (let from = 0; from < 20000; from += 1000) {
+        const { data, error } = await supabase.from("finance_transactions").select("*").eq("recurrence", "extrato")
+          .gte("tx_date", since.toISOString().slice(0, 10)).order("tx_date", { ascending: false }).range(from, from + 999);
+        if (error) throw error;
+        bank.push(...(data ?? []));
+        if (!data || data.length < 1000) break;
+      }
+      return [...own.data, ...bank].map((r) => ({ ...r, amount: Number(r.amount) })) as Tx[];
     },
   });
 
@@ -119,7 +146,8 @@ function FinancePage() {
   const income = filtered.filter((r) => r.kind === "receita").reduce((s, r) => s + r.amount, 0);
   const expense = filtered.filter((r) => r.kind === "despesa").reduce((s, r) => s + r.amount, 0);
   const balance = rows.filter((r) => r.kind !== "divida").reduce((s, r) => s + (r.kind === "receita" ? r.amount : -r.amount), 0);
-  const flow = analyzeFlow(rows);
+  const flow = analyzeFlow(rows.filter((r) => r.recurrence !== "extrato"));
+  const bank = useMemo(() => bankSummary(rows), [rows]);
 
   const importFlow = useMutation({
     mutationFn: async () => {
@@ -169,6 +197,37 @@ function FinancePage() {
       subtitle="Seu fluxo do mês e o que os diários dizem sobre dinheiro."
       actions={manual ? <Button onClick={() => setOpen((v) => !v)} className="font-semibold glow-neon"><Plus className="h-4 w-4" /> Lançar</Button> : undefined}
     >
+      {bank.count > 0 && (
+        <section className="panel mb-6 p-5">
+          <header className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">Extratos bancários (real)</h2>
+            <span className="text-xs text-muted-foreground">Nubank · até {dateBR(bank.last)} · atualiza sozinho pelo Drive</span>
+          </header>
+          <div className="grid gap-5 lg:grid-cols-3">
+            {([["Pessoal (PF)", bank.pf], ["Empresa (PJ)", bank.pj]] as const).map(([label, data]) => (
+              <div key={label}>
+                <p className="mb-2 text-xs font-semibold text-muted-foreground">{label}</p>
+                {data.map((r) => (
+                  <div key={r.m} className="flex justify-between gap-2 border-b border-border py-1.5 text-sm">
+                    <span className="w-16 text-muted-foreground">{MONTH_LABEL(r.m)}</span>
+                    <span className="text-primary">+{money(r.in)}</span>
+                    <span>−{money(r.out)}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+            <div>
+              <p className="mb-2 text-xs font-semibold text-muted-foreground">Maiores gastos do mês (PF)</p>
+              {bank.cats.length === 0 && <p className="text-sm text-muted-foreground">Sem gastos neste mês ainda.</p>}
+              {bank.cats.map(([c, v]) => (
+                <div key={c} className="flex justify-between border-b border-border py-1.5 text-sm">
+                  <span>{CAT_LABEL[c] ?? c}</span><span>{money(v)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
       <section className="panel mb-6 p-5">
         <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-muted-foreground">Citado nos diários</h2>
         {signals.length === 0 ? <p className="text-sm text-muted-foreground">Nenhuma conta ou dívida citada nos diários.</p> : (
