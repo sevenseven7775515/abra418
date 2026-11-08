@@ -79,9 +79,19 @@ function FinancePage() {
   const { data: rows = [] } = useQuery({
     queryKey: ["finance"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("finance_transactions").select("*").order("tx_date", { ascending: false });
-      if (error) throw error;
-      return (data ?? []).map((r) => ({ ...r, amount: Number(r.amount) })) as Tx[];
+      // Lançamentos próprios + extratos dos últimos 7 meses (paginado; o banco devolve até 1000 por vez)
+      const own = await supabase.from("finance_transactions").select("*").neq("recurrence", "extrato").order("tx_date", { ascending: false }).limit(1000);
+      if (own.error) throw own.error;
+      const since = new Date(); since.setDate(1); since.setMonth(since.getMonth() - 6);
+      const bank: typeof own.data = [];
+      for (let from = 0; from < 20000; from += 1000) {
+        const { data, error } = await supabase.from("finance_transactions").select("*").eq("recurrence", "extrato")
+          .gte("tx_date", since.toISOString().slice(0, 10)).order("tx_date", { ascending: false }).range(from, from + 999);
+        if (error) throw error;
+        bank.push(...(data ?? []));
+        if (!data || data.length < 1000) break;
+      }
+      return [...own.data, ...bank].map((r) => ({ ...r, amount: Number(r.amount) })) as Tx[];
     },
   });
 
