@@ -103,14 +103,14 @@ export function reconcileMonth(flow: FlowItem[], bank: BankTx[], today = new Dat
   const used = new Set<BankTx>();
   const a = analyzeFlow(flow);
   const incomes = a.entradas.map((e) => {
-    const key = norm(e.description).split(/\s+/)[0];
+    const key = norm(e.description).split(/\s+/)[0] ?? "";
     const hit = month.find((t) => !used.has(t) && t.kind === "receita" && key.length > 2 && norm(t.description).includes(key));
     if (hit) used.add(hit);
     const d = dayOf(e);
     return { item: e, hit: hit ?? null, status: hit ? "recebido" : d < day ? "atrasado" : "previsto" } as const;
   });
   const bills = a.saidas.filter((s) => s.recurrence === "mensal" && s.amount >= 100).map((s) => {
-    const key = norm(s.description).split(/[\s(]+/)[0];
+    const key = norm(s.description).split(/[\s(]+/)[0] ?? "";
     const hit = month.find((t) => !used.has(t) && t.kind === "despesa" &&
       (norm(t.description).includes(key) || Math.abs(t.amount - s.amount) < 0.01));
     if (hit) used.add(hit);
