@@ -7,6 +7,7 @@ import { PersonalShell } from "@/components/personal/PersonalShell";
 import { money, dateBR } from "@/components/personal/kit";
 import marcosAvatar from "@/assets/marcos.png.asset.json";
 import { CommercialEngine, HermesDirection, StalledItems, useHermesSnapshot } from "@/components/personal/HermesBlocks";
+import { MonthCash } from "@/components/personal/MonthCash";
 import { fetchWeather } from "@/lib/weather";
 import { currentPlanetaryHour, dayRuler, moonIllumination, moonPhase, moonSign } from "@/lib/astro";
 import {
@@ -198,6 +199,19 @@ function DashboardPage() {
 
   return (
     <PersonalShell title={`${greeting(now.getHours())}, ${firstName}.`} subtitle="Seu painel pessoal de comando.">
+      <div className="mb-4 grid gap-4">
+        <HermesDirection snapshot={hermes.data} compact />
+        <MonthCash />
+      </div>
+
+      <button
+        onClick={() => setShowMore((v) => !v)}
+        className="mb-4 w-full rounded-xl border border-border py-2.5 text-xs uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
+      >
+        {showMore ? "Ocultar o secundário" : "Ver o secundário (histórico, hoje, módulos)"}
+      </button>
+
+      {showMore && (<>
       <section className="panel mb-4 flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
         <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full border-2 border-primary bg-secondary glow-neon">
           <img
@@ -219,19 +233,9 @@ function DashboardPage() {
       </section>
 
       <div className="mb-4 grid gap-4">
-        <HermesDirection snapshot={hermes.data} compact />
         <CommercialEngine snapshot={hermes.data} />
         <StalledItems snapshot={hermes.data} />
       </div>
-
-      <button
-        onClick={() => setShowMore((v) => !v)}
-        className="mb-4 w-full rounded-xl border border-border py-2.5 text-xs uppercase tracking-wide text-muted-foreground transition-colors hover:text-foreground"
-      >
-        {showMore ? "Ocultar o secundário" : "Ver o secundário (histórico, hoje, módulos)"}
-      </button>
-
-      {showMore && (<>
       <section className="panel mb-4 p-5">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">Base histórica</p>
         <div className="mt-3 grid grid-cols-2 gap-2 text-center text-[11px] text-muted-foreground sm:grid-cols-3 lg:grid-cols-6">

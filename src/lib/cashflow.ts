@@ -20,8 +20,13 @@ export function monthlyAmount(i: Pick<FlowItem, "amount" | "recurrence">) {
   return 0;
 }
 
+/** Receitas encerradas pelo usuário: ignoradas mesmo se já salvas no banco. */
+export const ENDED_INCOME = ["zanfer"];
+export const isEnded = (i: Pick<FlowItem, "kind" | "description">) =>
+  i.kind === "receita" && ENDED_INCOME.some((n) => i.description.toLowerCase().includes(n));
+
 export function analyzeFlow(items: FlowItem[]) {
-  const recurring = items.filter((i) => i.recurrence !== "unica");
+  const recurring = items.filter((i) => i.recurrence !== "unica" && !isEnded(i));
   const entradas = recurring.filter((i) => i.kind === "receita");
   const saidas = recurring.filter((i) => i.kind === "despesa");
   const dividas = items.filter((i) => i.kind === "divida");
@@ -65,7 +70,6 @@ export function userFlowSeed(base = new Date()): FlowItem[] {
   });
   return [
     inc(27, 400, "Juliano"),
-    inc(5, 1500, "Felipe Zanfer"),
     inc(5, 1500, "Leonardo Chaves"),
     inc(15, 500, "Hector"),
     inc(25, 300, "Mari Ismera"),
@@ -85,4 +89,34 @@ export function userFlowSeed(base = new Date()): FlowItem[] {
     debt("Dívidas no meu CPF (aprox.)", 5000),
     debt("Dívidas no CPF da esposa (aprox.)", 15000),
   ];
+}
+
+const norm = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+type BankTx = { kind: string; description: string; amount: number; tx_date: string | null };
+
+/** Confronta as entradas/saídas fixas com o extrato do mês (determinístico, por nome ou valor). */
+export function reconcileMonth(flow: FlowItem[], bank: BankTx[], today = new Date()) {
+  const ym = today.toISOString().slice(0, 7);
+  const day = today.getDate();
+  const month = bank.filter((t) => t.tx_date?.startsWith(ym));
+  const used = new Set<BankTx>();
+  const a = analyzeFlow(flow);
+  const incomes = a.entradas.map((e) => {
+    const key = norm(e.description).split(/\s+/)[0] ?? "";
+    const hit = month.find((t) => !used.has(t) && t.kind === "receita" && key.length > 2 && norm(t.description).includes(key));
+    if (hit) used.add(hit);
+    const d = dayOf(e);
+    return { item: e, hit: hit ?? null, status: hit ? "recebido" : d < day ? "atrasado" : "previsto" } as const;
+  });
+  const bills = a.saidas.filter((s) => s.recurrence === "mensal" && s.amount >= 100).map((s) => {
+    const key = norm(s.description).split(/[\s(]+/)[0] ?? "";
+    const hit = month.find((t) => !used.has(t) && t.kind === "despesa" &&
+      (norm(t.description).includes(key) || Math.abs(t.amount - s.amount) < 0.01));
+    if (hit) used.add(hit);
+    return { item: s, hit: hit ?? null };
+  });
+  const spent = month.filter((t) => t.kind === "despesa").reduce((x, t) => x + t.amount, 0);
+  const received = month.filter((t) => t.kind === "receita").reduce((x, t) => x + t.amount, 0);
+  return { incomes, bills, spent, received, expectedIn: a.totalIn, hasStatement: month.length > 0 };
 }
