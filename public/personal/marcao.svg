@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <title>Marcão</title>
+  <rect width="256" height="256" rx="44" fill="#111111"/>
+  <path d="M48 196V60h38l42 65 42-65h38v136h-36V119l-44 65-44-65v77Z" fill="#B7FF00"/>
+</svg>
